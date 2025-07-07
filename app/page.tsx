@@ -4,117 +4,16 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Phone,
-  Mail,
-  MapPin,
-  Star,
-  Users,
-  BookOpen,
-  Award,
-  Play,
-  ArrowRight,
-  CheckCircle,
-  TrendingUp,
-} from "lucide-react"
+import { Star, Users, BookOpen, Award, Play, ArrowRight, TrendingUp, MapPin } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import { ModuleModal } from "@/components/module-modal"
+import { Header } from "@/components/header"
+import { Navigation } from "@/components/navigation"
+import { Footer } from "@/components/footer"
 
-const modules = [
-  {
-    id: "1",
-    cname: "RESA LAW",
-    description:
-      "The Real Estate Service Act of the Philippines or Republic Act No. 9646. This course will tackle the basics and the acts that focus primarily its Implementing Rules and Regulations. After taking this module, you will be able to fully understand the use and importance of the RESA law in the real estate industry.",
-    speaker: "DR. EDUARDO G. ONG",
-    spimg: "DR. EDUARDO G. ONG.png",
-    learndesc: "Introduction of the RESA Law. Students will use the video and powerpoint provided",
-    learndesc2: "Understanding the Implementing Rules and Regulations",
-    learndesc3: "Application of RESA Law in real estate practice",
-  },
-  {
-    id: "2",
-    cname: "DOCUMENTATION & TITLING",
-    description:
-      "Learn the ropes and see the importance of the proper ways for documentation and titling. This will include the needed documents, basic requirements, the different processing of the Certificate of Title and the laws that apply.",
-    speaker: "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA",
-    spimg: "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA.png",
-    learndesc:
-      "Discussion of the land administration and management laws in the Philippines, key legislation, land mandates, and acquiring lands",
-    learndesc2:
-      "Learn about sales patents, special patents, residential free patents and the flow of process of the different kinds of patents",
-    learndesc3: "Certificate of Title processing and requirements",
-  },
-  {
-    id: "3",
-    cname: "CODE OF ETHICS AND RESPONSIBILITIES",
-    description:
-      "This course will teach you how to transition from the real Estate service practitioners duties and behavior proper to a professional",
-    speaker: "ENGR. ELEANOR LIGANOR",
-    spimg: "ENGR. ELEANOR LIGANOR.png",
-    learndesc: "Introduction of the code of ethics, PRC and its functions",
-    learndesc2: "Sec 23. Issuance of Special Temporary Permit to Sec 33. Display of License in the Place of Business",
-    learndesc3:
-      "Sec 34. Accreditation and Integration of Real Estate Service Association (AIPO) to Sec 45. Effectivity",
-  },
-  {
-    id: "4",
-    cname: "Real Estate Taxation under RA8424 and Train Law",
-    description:
-      "The focal point of this course is the basics of RA 8424 and TRAIN Law and the commission of the Internal Revenue Real Property Values. In this course, you will understand the different components of taxation, understand the TRAIN law and how the TRAIN Law has changed taxation in the Philippines.",
-    speaker: "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA",
-    spimg: "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA.png",
-    learndesc: "Assessment of various properties, BLGF under the DOF and the discussion of RA 9646",
-    learndesc2: "Definition of terms and role of the assessor",
-    learndesc3: "Introduction of TRAIN Law and its impact on real estate",
-  },
-  {
-    id: "5",
-    cname: "THE SHARK PRINCIPLES",
-    description:
-      "The course SHARK Principles, discusses the underlying principles to success that are applicable to every real estate practitioner. The principles in this course will not only help your career but also help you understand the importance of having good principles and teach you the value of maintaining good relationships with clients.",
-    speaker: "Alejandro Manalac",
-    spimg: "ALEJANDRO MANALAC.png",
-    learndesc: "Part I: Developing Champions with Values",
-    learndesc2: "Part II: The SHARK Selling Principle",
-    learndesc3: "Part III: The Language of Selling",
-  },
-  {
-    id: "6",
-    cname: "LEADERSHIP & MANAGEMENT SKILLS",
-    description:
-      "Leadership and Management Skills in Real Estate will help you develop your knowledge and other vital points such as effective leadership, goals, marketing and even working and marketing with peers. These are all essential in becoming a leader and manager in the Real Estate industry.",
-    speaker: "Azela E. Honor,REB",
-    spimg: "AZELA HONOR.png",
-    learndesc: "Discussion of how to be an effective leader and a leader's mindset",
-    learndesc2: "Discussion on digital marketing skills and exploring the different people skills",
-    learndesc3: "Tackling collaborative skills, networking skills and Public Speaking 101",
-  },
-  {
-    id: "7",
-    cname: "Boosting your Rental Sales",
-    description:
-      "Your opportunity to the future of Real Estate - Understanding property management and rental strategies. Learn how to maximize rental income and manage properties effectively.",
-    speaker: "Anthony Leuterio",
-    spimg: "ANTHONY GERARD LEUTERIO.png",
-    learndesc: "Understanding the different aspects of property management",
-    learndesc2: "Insights and support facilities in a residential property management",
-    learndesc3: "Why quality management tools in facilities matter",
-  },
-  {
-    id: "8",
-    cname: "Branding Building and Why it Matters in the New Normal",
-    description:
-      "This course will aid you in understanding and developing how building and improving one's personality traits plays an important role for you and your team especially in building a brand. Branding gives you an identity which will help you in your career.",
-    speaker: "George Ryan Sarmago",
-    spimg: "GEORGE RYAN SARMAGO.png",
-    learndesc: "Discussion of the functions of branding and the difference between selling and branding",
-    learndesc2: "Identifying and understanding brand crisis and branding the Filipinohomes way",
-    learndesc3: "Strategic postings (what and what not to post) and 7 strategies in building a brand during ECQ",
-  },
-]
+const modules = [ { "id": "1", "cname": "RESA LAW", "description": "The Real Estate Service Act of the Philippines or Republic Act No. 9646. This course will tackle the basics and the acts that focus primarily its Implementing Rules and Regulations. After taking this module, you will be able to fully understand the use and importance of the RESA law in the real estate industry. The course will use webinar videos and a Powerpoint presentation. In order to assess this module, an online quiz and end of the module assignment will be given to the students.", "speaker": "DR. EDUARDO G. ONG", "spimg": "DR. EDUARDO G. ONG.png", "spcontact": "01234567890", "learndesc": "Introduction of the RESA Law. Students will use the video and powerpoint provided", "learndesc2": "", "learndesc3": "", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/VnC_BeHrQ6o\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"><\/iframe>", "presentation": "resalaw.pdf", "dateadded": "2020-06-02" }, { "id": "2", "cname": "DOCUMENTATION & TITLING", "description": "Learn the ropes and see the importance of the proper ways for documentation and titling. This will include the needed documents, basic requirements, the different processing of the Certificate of Title and the laws that apply.", "speaker": "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA", "spimg": "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA.png", "spcontact": "01234567890", "learndesc": "Discussion of the land administration and management laws in the Philippines, key legislation, land mandates, and acquiring lands. The students will base this on the video and the Powerpoint presentation given.", "learndesc2": "Learn about sales patents, special patents, residential free patents and the flow of process of the different kinds of patents.", "learndesc3": "", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/m2MzEhkk3Ic\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "docandtitling.pdf", "dateadded": "2020-06-04" }, { "id": "3", "cname": "CODE OF ETHICS AND RESPONSIBILITIES", "description": "This course will teach you how to transition from the real Estate service practitioners duties and behavior proper to a professional", "speaker": "ENGR. ELEANOR LIGANOR", "spimg": "ENGR. ELEANOR LIGANOR.png", "spcontact": "123456789", "learndesc": "Introduction of the code of ethics, PRC and its functions \t\t\tStudents will use the video and powerpoint provided", "learndesc2": "Sec 23. Issuance of Special Temporary Permit to Sec 33. Display of License in the Place of Business Students will use the video and powerpoint provided", "learndesc3": "Sec 34. Accreditation and Integration of Real Estate Service Association (AIPO) to Sec 45. Effectivity Online Quiz: Code of Ethics", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/FOnH6eLN-sY\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "CODEOFETHICS.pdf", "dateadded": null }, { "id": "4", "cname": "Real Estate Taxation under RA8424 and Train Law", "description": "The focal point of this course is the basics of RA 8424 and TRAIN Law and the commission of the Internal Revenue Real Property Values. In this course, you will understand the different components of taxation, understand the TRAIN law and how the TRAIN Law has changed taxation in the Philippines. Assessment will be done through an online quiz and an end of module assignment. By the end of this course, you will have a better understanding on how taxation and TRAIN Law works and how vital it is in the industry.", "speaker": "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA", "spimg": "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA.png", "spcontact": "123456789", "learndesc": "Assessment of various properties, BLGF under the DOF\r\nand the discussion of RA 9646\r\nVideo and powerpoint will be used", "learndesc2": "Definition of terms and role of the assessor\r\nStudents will use the video and powerpoint provided\r\n.", "learndesc3": "Introduction of TRAIN Law\r\nOnline Quiz: Real Estate Taxation under RA 8424 and TRAIN Law", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/ZMGIElqC7RQ\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "RA8424.pdf", "dateadded": null }, { "id": "5", "cname": "THE SHARK PRINCIPLES", "description": "The course SHARK Principles , discusses the underlying principles to success that are applicable to every real estate practitioner. Students taking this module will be assessed based on an online quiz and an end of the module assignment. The principles in this course will not only help your career but also help you understand the importance of having good principles and teach you the value of maintaining good relationships with clients. ", "speaker": "Alejandro Manalac", "spimg": "ALEJANDRO MANALAC.png", "spcontact": "123456789", "learndesc": "Part I: Developing Champions with Values\r\nStudents will use the video and powerpoint provided\r\n", "learndesc2": "Part II: The SHARK Selling Principle\r\nStudents will use the video and powerpoint provided", "learndesc3": "Part III: The Language of Selling \r\nOnline Quiz: SHARK Principles", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/K-I-y9G9GTM\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "sharkprinciples.pdf", "dateadded": null }, { "id": "6", "cname": "LEADERSHIP & MANAGEMENT SKILLS", "description": "In this course, entitled Leadership and Management Skills in Real Estate will help you develop your knowledge and other vital points such as effective leadership, goals, marketing and even working and marketing with peers. These are all essential in becoming a leader and manager in the Real Estate industry. It will also discuss how you can work with others and be a leader in various aspects in the industry. An assessment will be done through an online quiz and an end of module assignment. ", "speaker": "Azela E. Honor,REB", "spimg": "AZELA HONOR.png", "spcontact": "123456789", "learndesc": "Discussion of how to be an effective leader and a leader’s mindset\t\tStudents will use the video and powerpoint provided", "learndesc2": "Discussion on digital marketing skills and exploring the different people skills Video and powerpoint will be used", "learndesc3": "Tackling collaborative skills, networking skills and Public Speaking 101 Students will use the video and powerpoint provided", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/q96V3ZXP2I0\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "leadership.pdf", "dateadded": null }, { "id": "7", "cname": "Boosting your Rental Sales", "description": "Your opportunity to the future of Real Estate", "speaker": "Anthony Leuterio", "spimg": "ANTHONY GERARD LEUTERIO.png", "spcontact": "123456789", "learndesc": "Understanding the different aspects of property management Video and powerpoint will be used", "learndesc2": "Insights and support facilities in a residential property management Students will use the video and powerpoint provided", "learndesc3": "Why quality management tools in facilities matter \tOnline Quiz: Best Practices in Real Estate, Rent Management and Property Management", "video": "<iframe width=\"990px\" height=\"558px\" src=\"https:\/\/filipinohomes123.s3.ap-southeast-1.amazonaws.com\/uploads\/Boosting_Your_Rental_Sales.mp4\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "rent.pdf", "dateadded": null }, { "id": "8", "cname": "Branding Building and Why it Matters in the New Normal", "description": "This course will aid you in understanding and developing how building and improving one's personality traits plays an important role for you and your team especially in building a brand. Branding gives you an identity which will help you in your career. This will also aid in adapting to the new normal, which is making a brand for you on social media. Moreover, learning when to post and when not to is vital especially with contents and strategic postings. By the end of this course, you will have a better understanding on how taxation and TRAIN Law works and how vital it is in the industry. ", "speaker": "George Ryan Sarmago", "spimg": "GEORGE RYAN SARMAGO.png", "spcontact": "123456789", "learndesc": "Discussion of the functions of branding and the difference between selling and branding \t\t\tStudents will use the video and powerpoint provided", "learndesc2": "Identifying and understanding brand crisis and branding the Filipinohomes way Video and powerpoint will be used", "learndesc3": "Strategic postings (what and what not to post) and 7 strategies in building a brand during ECQ Students will use the video and powerpoint provided", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/x8I1ck0MjTI\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "branding.pdf", "dateadded": null }, { "id": "9", "cname": "Ignite Your Social Media Marketing", "description": "At present, our lives are linked to social media and it has also become a part of our lives. During this course, entitled Ignite Your Social Media Marketing, it will show you how social media plays a vital role in sales in the real estate industry especially during a worldwide pandemic. . This will include a brief discussion on sales, listings and the effectiveness of your posts to your viewers. An aspect on using social media such as videos and postings will also be discussed which will be supported by real life sales and how it is possible to make the most of marketing through social media platforms.An assessment will be done through an online quiz and an end of module assignment. ", "speaker": "Marc Godornes", "spimg": "MARC CHRISTIAN GODORNES.png", "spcontact": "123456789", "learndesc": "Why Boosting posts and posting stories are essential in making sales Video and powerpoint will be used", "learndesc2": "Why Boosting posts and posting stories are essential in making sales Video and powerpoint will be used", "learndesc3": "Insights on the types of videos and the shift in the market during quarantine Students will use the video and powerpoint provided", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/wZdcSuJ-f1g\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "ignite.pdf", "dateadded": null }, { "id": "10", "cname": "Supercharge your FACEBOOK Marketing in 2020", "description": "Nowadays, we use the platform of Facebook for numerous things and one of these includes promoting your units. This course will teach you how to market yourself better and effectively on Facebook. Your understanding of this subject will be through an assessment as an online quiz and an end of module assignment.", "speaker": "Gilbert Monecillo", "spimg": "GILBERT MONECILLO.png", "spcontact": "123456789", "learndesc": "Discussing ECQ and how social media marketing can be used as a marketing Platform Students will use the video and powerpoint provided", "learndesc2": "Why Boosting posts and posting stories are essential in making sales Video and powerpoint will be used", "learndesc3": "Insights on the types of videos and the shift in the market during quarantine Students will use the video and powerpoint provided", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/sg2T0bz71Ks\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "Supercharge.pdf", "dateadded": null }, { "id": "11", "cname": "Real Property Taxation under RA7160", "description": "This will help you understand the real property taxation based on the local government code of 1991. This will cover property tax, business tax, professional tax, amusement tax and other fees and charges.", "speaker": "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA", "spimg": "ATTY. WALFRIDO LOMONSOD ALCANTARA, REB, REA.png", "spcontact": "123456789", "learndesc": "Discussing ECQ and how social media marketing can be used as a marketing Platform Students will use the video and powerpoint provided", "learndesc2": "Why Boosting posts and posting stories are essential in making sales Video and powerpoint will be used", "learndesc3": "Insights on the types of videos and the shift in the market during quarantine Students will use the video and powerpoint provided", "video": "<iframe width=\"1000px\" height=\"720px\" src=\"https:\/\/www.youtube.com\/embed\/f4e1lT32wOo\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen><\/iframe>", "presentation": "", "dateadded": null }]
 
 export default function HomePage() {
   const [selectedModule, setSelectedModule] = useState<(typeof modules)[0] | null>(null)
@@ -127,49 +26,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-3">
-        <div className="container mx-auto px-4 flex justify-between items-center text-sm">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 hover:text-blue-300 transition-colors">
-              <Phone className="w-4 h-4" />
-              <span>+63 9569256686</span>
-            </div>
-            <div className="flex items-center gap-2 hover:text-blue-300 transition-colors">
-              <Mail className="w-4 h-4" />
-              <span>info@filipinohomes.com</span>
-            </div>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-4 h-4 text-green-400" />
-              <span>Trusted by 10,000+ Students</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="bg-white shadow-lg py-4 sticky top-0 z-40 backdrop-blur-sm bg-white/95">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <Image src="/images/logo.png" alt="FIRE Logo" width={200} height={60} className="h-12 w-auto" />
-          </Link>
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">
-              HOME
-            </Link>
-            <Link href="/contact" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">
-              CONTACT US
-            </Link>
-            <Link href="/login">
-              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg">
-                LOGIN
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Header />
+      <Navigation />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20 relative overflow-hidden">
@@ -204,20 +62,12 @@ export default function HomePage() {
                   <BookOpen className="w-5 h-5 mr-2" />
                   Download Agent Endorsement Letter
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg bg-transparent"
-                >
-                  <Play className="w-5 h-5 mr-2" />
-                  Watch Demo
-                </Button>
               </div>
 
               <div className="flex items-center gap-8 pt-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">10,000+</div>
-                  <div className="text-blue-200 text-sm">Students Trained</div>
+                  <div className="text-2xl font-bold">35,000+</div>
+                  <div className="text-blue-200 text-sm">Real Estate Agents Trained</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">500+</div>
@@ -432,84 +282,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div className="space-y-4">
-              <Image src="/images/logo.png" alt="FIRE Logo" width={200} height={60} className="h-12 w-auto" />
-              <p className="text-slate-400 leading-relaxed">
-                Comprehensive online real estate training for Filipino professionals. Building careers, one student at a
-                time.
-              </p>
-              <div className="flex items-center gap-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                ))}
-                <span className="text-sm text-slate-400 ml-2">Trusted by 10,000+ students</span>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Quick Links</h4>
-              <div className="space-y-3">
-                <Link href="/" className="block text-slate-400 hover:text-white transition-colors">
-                  Home
-                </Link>
-                <Link href="/contact" className="block text-slate-400 hover:text-white transition-colors">
-                  Contact
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Contact Info</h4>
-              <div className="space-y-3 text-slate-400">
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-blue-400" />
-                  <span>+63 9569256686</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-blue-400" />
-                  <span>info@filipinohomes.com</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-blue-400" />
-                  <span>Cebu, Philippines</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Follow Us</h4>
-              <div className="space-y-3">
-                <p className="text-slate-400 text-sm">Stay connected for updates and industry insights</p>
-                <div className="flex gap-3">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-slate-600 text-slate-400 hover:text-white hover:border-white bg-transparent"
-                  >
-                    Facebook
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-slate-600 text-slate-400 hover:text-white hover:border-white bg-transparent"
-                  >
-                    LinkedIn
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-700 pt-8 text-center text-slate-400">
-            <p>&copy; 2025 Filipino Homes Institute of Real Estate. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-
+      <Footer />
       <ScrollToTop />
       <ModuleModal module={selectedModule} isOpen={isModuleModalOpen} onClose={() => setIsModuleModalOpen(false)} />
     </div>

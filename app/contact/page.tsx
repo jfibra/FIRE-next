@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Phone, Mail, MapPin, Clock, Send, ArrowLeft } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { ScrollToTop } from "@/components/scroll-to-top"
+import { Header } from "@/components/header"
+import { Navigation } from "@/components/navigation"
+import { Footer } from "@/components/footer"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -36,43 +38,8 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-3">
-        <div className="container mx-auto px-4 flex justify-between items-center text-sm">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4" />
-              <span>+63 9569256686</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              <span>info@filipinohomes.com</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="bg-white shadow-lg py-4">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/images/logo.png" alt="FIRE Logo" width={200} height={60} className="h-12 w-auto" />
-          </Link>
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">
-              HOME
-            </Link>
-            <Link href="/contact" className="text-blue-600 font-medium">
-              CONTACT US
-            </Link>
-            <Link href="/login">
-              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
-                LOGIN
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Header />
+      <Navigation />
 
       {/* Breadcrumb */}
       <div className="bg-white border-b">
@@ -92,13 +59,6 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Link>
             <h1 className="text-4xl font-bold text-slate-800 mb-4">Get in Touch</h1>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
               Have questions about our courses or need assistance? We're here to help you start your real estate
@@ -254,52 +214,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
-        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <Image src="/images/logo.png" alt="FIRE Logo" width={200} height={60} className="h-12 w-auto mb-6" />
-            <p className="text-slate-400">
-              Your gateway to Philippine real estate. Expertly curated listings, insightful resources, and a dedicated
-              team to guide you home.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg">Quick Links</h4>
-            <div className="space-y-3">
-              <Link href="/" className="block text-slate-400 hover:text-white transition-colors">
-                Home
-              </Link>
-              <Link href="/contact" className="block text-slate-400 hover:text-white transition-colors">
-                Contact
-              </Link>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg">Contact Us</h4>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-blue-500" />
-                <span>+63 9569256686</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-green-500" />
-                <span>info@filipinohomes.com</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-purple-500" />
-                <span>Cebu, Philippines</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="text-center mt-8 text-slate-500">
-          <p>&copy; {new Date().getFullYear()} Filipino Homes. All rights reserved.</p>
-        </div>
-      </footer>
-
+      <Footer />
       <ScrollToTop />
     </div>
   )
