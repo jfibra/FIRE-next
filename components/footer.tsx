@@ -9,7 +9,7 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4">
-            <Image src="/images/logo.png" alt="FIRE Logo" width={200} height={60} className="h-12 w-auto" />
+            <Image src="/images/FIRE-LOGO-NEW-TRANSPARENT-WHITE.png" alt="FIRE Logo" className="w-15" />
             <p className="text-slate-400 leading-relaxed">
               Comprehensive online real estate training for Filipino professionals. Building careers, one student at a
               time.

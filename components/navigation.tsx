@@ -17,11 +17,10 @@ export function Navigation() {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <Image
-                src="/images/logo.png"
+                src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
                 alt="Real Estate Training PH"
-                width={200}
-                height={60}
-                className="h-12 w-auto"
+                width={400}
+                height={200}
               />
             </Link>
           </div>
