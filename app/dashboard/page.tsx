@@ -113,8 +113,8 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-dark-blue"></div>
       </div>
     )
   }
@@ -123,31 +123,31 @@ export default function DashboardPage() {
   const totalProgress = Math.round(modules.reduce((acc, m) => acc + m.progress, 0) / modules.length)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-primary-white/30 to-primary-yellow/50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white shadow-2xl border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-gradient-to-r from-primary-dark-blue to-primary-dark-blue-light text-primary-white shadow-2xl border-b border-primary-white/10">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Image
                 src="/images/logo.png"
                 alt="FIRE Logo"
-                width={120}
-                height={40}
-                className="h-8 w-auto drop-shadow-lg"
+                width={100}
+                height={30}
+                className="h-7 w-auto sm:h-8 sm:w-auto drop-shadow-lg"
               />
               <div className="hidden md:block">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                  FIRE Training Dashboard
+                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary-white to-blue-200 bg-clip-text text-transparent">
+                  FIRE Agent Dashboard
                 </h1>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Button
                 variant="ghost"
                 size="sm"
-                className="md:hidden text-white hover:bg-white/20 transition-all duration-200"
+                className="md:hidden text-primary-white hover:bg-primary-white/20 transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -157,7 +157,7 @@ export default function DashboardPage() {
                 onClick={handleLogout}
                 variant="ghost"
                 size="sm"
-                className="hidden md:flex text-white hover:bg-white/20 transition-all duration-200 backdrop-blur-sm"
+                className="hidden md:flex text-primary-white hover:bg-primary-white/20 transition-all duration-200 backdrop-blur-sm"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Log out
@@ -169,13 +169,13 @@ export default function DashboardPage() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-md border-b shadow-xl">
+        <div className="md:hidden bg-primary-white/95 backdrop-blur-md border-b shadow-xl">
           <div className="container mx-auto px-4 py-4 space-y-2">
             <Button
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-slate-700 hover:bg-slate-100"
+              className="w-full justify-start text-gray-700 hover:bg-gray-100"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Log out
@@ -184,14 +184,14 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-3xl p-8 mb-8 text-white shadow-2xl shadow-blue-500/20 border border-white/10">
+        <div className="bg-gradient-to-r from-primary-dark-blue-light via-primary-dark-blue to-primary-dark-blue-dark rounded-xl sm:rounded-3xl p-6 sm:p-8 mb-6 sm:mb-8 text-primary-white shadow-2xl shadow-primary-dark-blue/20 border border-primary-white/10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-6">
-              <Avatar className="w-20 h-20 border-4 border-white/30 shadow-xl shadow-black/20">
-                <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback className="bg-white/20 text-white text-xl font-bold backdrop-blur-sm">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-2 sm:border-4 border-primary-white/30 shadow-xl shadow-black/20">
+                <AvatarImage src="/placeholder-user.png" />
+                <AvatarFallback className="bg-primary-white/20 text-primary-white text-lg sm:text-xl font-bold backdrop-blur-sm">
                   {user.name
                     .split(" ")
                     .map((n) => n[0])
@@ -199,164 +199,164 @@ export default function DashboardPage() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 bg-gradient-to-r from-primary-white to-blue-100 bg-clip-text text-transparent">
                   Welcome back, {user.name}!
                 </h2>
-                <p className="text-blue-100/90 text-lg">
+                <p className="text-blue-100/90 text-base sm:text-lg">
                   You have completed {completedModules} of {modules.length} modules. Keep up the great work!
                 </p>
               </div>
             </div>
-            <Badge className="bg-white/20 text-white border-white/30 px-6 py-3 text-lg font-semibold backdrop-blur-sm shadow-lg">
+            <Badge className="bg-primary-white/20 text-primary-white border-primary-white/30 px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-semibold backdrop-blur-sm shadow-lg">
               🏆 {totalProgress}% Complete
             </Badge>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          <Card className="bg-gradient-to-br from-cyan-500 via-blue-600 to-blue-700 text-white border-0 shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 hover:-translate-y-1">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg backdrop-blur-sm">
-                <BookOpen className="w-8 h-8" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-10">
+          <Card className="bg-gradient-to-br from-primary-dark-blue-light to-primary-dark-blue text-primary-white border-0 shadow-2xl shadow-primary-dark-blue/25 hover:shadow-primary-dark-blue/40 transition-all duration-300 hover:-translate-y-1">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg backdrop-blur-sm">
+                <BookOpen className="w-7 h-7 sm:w-8 sm:h-8" />
               </div>
-              <div className="text-4xl font-bold mb-3">{modules.length}</div>
-              <div className="text-cyan-100 text-lg font-medium">Available Modules</div>
+              <div className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-3">{modules.length}</div>
+              <div className="text-blue-100 text-base sm:text-lg font-medium">Available Modules</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-500 via-green-600 to-green-700 text-white border-0 shadow-2xl shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 hover:-translate-y-1">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg backdrop-blur-sm">
-                <CheckCircle className="w-8 h-8" />
+          <Card className="bg-gradient-to-br from-emerald-500 via-green-600 to-green-700 text-primary-white border-0 shadow-2xl shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 hover:-translate-y-1">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg backdrop-blur-sm">
+                <CheckCircle className="w-7 h-7 sm:w-8 sm:h-8" />
               </div>
-              <div className="text-4xl font-bold mb-3">{completedModules}</div>
-              <div className="text-emerald-100 text-lg font-medium">Completed Modules</div>
+              <div className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-3">{completedModules}</div>
+              <div className="text-emerald-100 text-base sm:text-lg font-medium">Completed Modules</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500 via-pink-600 to-pink-700 text-white border-0 shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 hover:-translate-y-1">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg backdrop-blur-sm">
-                <Award className="w-8 h-8" />
+          <Card className="bg-gradient-to-br from-purple-500 via-pink-600 to-pink-700 text-primary-white border-0 shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 hover:-translate-y-1">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg backdrop-blur-sm">
+                <Award className="w-7 h-7 sm:w-8 sm:h-8" />
               </div>
-              <div className="text-4xl font-bold mb-3">{totalProgress}%</div>
-              <div className="text-purple-100 text-lg font-medium">Overall Progress</div>
+              <div className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-3">{totalProgress}%</div>
+              <div className="text-purple-100 text-base sm:text-lg font-medium">Overall Progress</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <Card className="hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm shadow-xl">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <BookOpen className="w-8 h-8 text-blue-600" />
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
+          <Card className="hover:shadow-2xl hover:shadow-primary-dark-blue/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-primary-white/80 backdrop-blur-sm shadow-xl">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-primary-dark-blue" />
               </div>
-              <h3 className="font-bold text-slate-800 mb-3 text-lg">My Profile</h3>
-              <p className="text-slate-600">View and manage your profile</p>
+              <h3 className="font-bold text-primary-dark-blue mb-2 sm:mb-3 text-base sm:text-lg">My Profile</h3>
+              <p className="text-gray-600 text-sm">View and manage your profile</p>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm shadow-xl">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Download className="w-8 h-8 text-emerald-600" />
+          <Card className="hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-primary-white/80 backdrop-blur-sm shadow-xl">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <Download className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-600" />
               </div>
-              <h3 className="font-bold text-slate-800 mb-3 text-lg">Downloads</h3>
-              <p className="text-slate-600">Access course materials</p>
+              <h3 className="font-bold text-primary-dark-blue mb-2 sm:mb-3 text-base sm:text-lg">Downloads</h3>
+              <p className="text-gray-600 text-sm">Access course materials</p>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm shadow-xl">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Award className="w-8 h-8 text-amber-600" />
+          <Card className="hover:shadow-2xl hover:shadow-primary-yellow/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-primary-white/80 backdrop-blur-sm shadow-xl">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <Award className="w-7 h-7 sm:w-8 sm:h-8 text-primary-yellow" />
               </div>
-              <h3 className="font-bold text-slate-800 mb-3 text-lg">Certificates</h3>
-              <p className="text-slate-600">View your achievements</p>
+              <h3 className="font-bold text-primary-dark-blue mb-2 sm:mb-3 text-base sm:text-lg">Certificates</h3>
+              <p className="text-gray-600 text-sm">View your achievements</p>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm shadow-xl">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Settings className="w-8 h-8 text-purple-600" />
+          <Card className="hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 hover:-translate-y-2 border-0 bg-primary-white/80 backdrop-blur-sm shadow-xl">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <Settings className="w-7 h-7 sm:w-8 sm:h-8 text-purple-600" />
               </div>
-              <h3 className="font-bold text-slate-800 mb-3 text-lg">Settings</h3>
-              <p className="text-slate-600">Manage your preferences</p>
+              <h3 className="font-bold text-primary-dark-blue mb-2 sm:mb-3 text-base sm:text-lg">Settings</h3>
+              <p className="text-gray-600 text-sm">Manage your preferences</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Training Modules */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+        <div className="mb-8 sm:mb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-primary-dark-blue bg-gradient-to-r from-primary-dark-blue to-gray-600 bg-clip-text text-transparent">
               Training Modules
             </h2>
-            <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 px-4 py-2 text-lg font-semibold shadow-lg">
+            <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-primary-dark-blue px-3 sm:px-4 py-1.5 sm:py-2 text-base sm:text-lg font-semibold shadow-lg mt-4 sm:mt-0">
               {completedModules}/{modules.length} Completed
             </Badge>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
             {modules.map((module) => (
               <Card
                 key={module.id}
-                className={`group hover:shadow-2xl ${module.shadowColor} transition-all duration-500 hover:-translate-y-3 border-0 overflow-hidden bg-white/90 backdrop-blur-sm shadow-xl`}
+                className={`group hover:shadow-2xl ${module.shadowColor} transition-all duration-500 hover:-translate-y-3 border-0 overflow-hidden bg-primary-white/90 backdrop-blur-sm shadow-xl`}
               >
-                <div className={`h-3 bg-gradient-to-r ${module.color} shadow-lg`}></div>
-                <CardContent className="p-8">
-                  <div className="flex items-center justify-between mb-6">
+                <div className={`h-2 sm:h-3 bg-gradient-to-r ${module.color} shadow-lg`}></div>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
                     <Badge
                       variant="secondary"
-                      className="bg-slate-100 text-slate-700 px-3 py-1 font-semibold shadow-sm"
+                      className="bg-gray-100 text-gray-700 px-2 sm:px-3 py-0.5 sm:py-1 font-semibold shadow-sm text-xs sm:text-sm"
                     >
                       Module {module.id}
                     </Badge>
                     {module.completed && (
-                      <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                        <CheckCircle className="w-5 h-5 text-white" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                        <CheckCircle className="w-4 h-4 sm:w-5 h-5 text-primary-white" />
                       </div>
                     )}
                   </div>
 
-                  <h3 className="font-bold text-slate-800 mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors text-lg leading-tight">
+                  <h3 className="font-bold text-primary-dark-blue mb-3 sm:mb-4 line-clamp-2 group-hover:text-primary-dark-blue-light transition-colors text-base sm:text-lg leading-tight">
                     {module.title}
                   </h3>
 
-                  <p className="text-slate-600 mb-6 truncate font-medium">{module.instructor}</p>
+                  <p className="text-gray-600 mb-4 sm:mb-6 truncate font-medium text-sm">{module.instructor}</p>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-600 font-medium">Progress</span>
-                      <span className="font-bold text-slate-800 text-lg">{module.progress}%</span>
+                      <span className="text-gray-600 font-medium text-sm">Progress</span>
+                      <span className="font-bold text-primary-dark-blue text-base sm:text-lg">{module.progress}%</span>
                     </div>
 
-                    <div className="w-full bg-slate-200 rounded-full h-3 shadow-inner">
+                    <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3 shadow-inner">
                       <div
-                        className={`h-3 rounded-full bg-gradient-to-r ${module.color} transition-all duration-500 shadow-sm`}
+                        className={`h-2 sm:h-3 rounded-full bg-gradient-to-r ${module.color} transition-all duration-500 shadow-sm`}
                         style={{ width: `${module.progress}%` }}
                       ></div>
                     </div>
 
                     <Button
-                      className={`w-full bg-gradient-to-r ${module.color} hover:opacity-90 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 py-3 font-semibold text-lg`}
+                      className={`w-full bg-gradient-to-r ${module.color} hover:opacity-90 text-primary-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 py-2.5 sm:py-3 font-semibold text-base sm:text-lg`}
                     >
                       {module.completed ? (
                         <>
-                          <Eye className="w-5 h-5 mr-2" />
+                          <Eye className="w-4 h-4 sm:w-5 h-5 mr-2" />
                           Review
                         </>
                       ) : module.progress > 0 ? (
                         <>
-                          <Play className="w-5 h-5 mr-2" />
+                          <Play className="w-4 h-4 sm:w-5 h-5 mr-2" />
                           Continue
                         </>
                       ) : (
                         <>
-                          <Play className="w-5 h-5 mr-2" />
+                          <Play className="w-4 h-4 sm:w-5 h-5 mr-2" />
                           Start
                         </>
                       )}
@@ -369,13 +369,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Back to Home */}
-        <div className="text-center">
+        <div className="text-center mt-8 sm:mt-10">
           <Link href="/">
             <Button
               variant="outline"
-              className="bg-white/90 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 px-8 py-3 text-lg font-semibold"
+              className="bg-primary-white/90 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 px-6 sm:px-8 py-2.5 sm:py-3 text-base sm:text-lg font-semibold"
             >
-              <Home className="w-5 h-5 mr-2" />
+              <Home className="w-4 h-4 sm:w-5 h-5 mr-2" />
               Back to Home
             </Button>
           </Link>

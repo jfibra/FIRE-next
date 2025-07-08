@@ -1,12 +1,9 @@
-import { Layout } from "@/components/layout"
-
-export default function ExamplePage() {
+const ExamplePage = () => {
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold">Your Page Content</h1>
-        <p>This page now uses the shared navigation and footer components.</p>
-      </div>
-    </Layout>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <h1 className="text-4xl font-bold text-gray-800">Example Page</h1>
+    </div>
   )
 }
+
+export default ExamplePage
