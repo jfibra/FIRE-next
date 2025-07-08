@@ -19,8 +19,9 @@ export function Navigation() {
               <Image
                 src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
                 alt="Real Estate Training PH"
-                width={400}
-                height={200}
+                width={400} // Default large width for desktop
+                height={200} // Default large height for desktop
+                className="h-auto w-[300px] md:h-auto md:w-[400px]" // Adjust for mobile, keep large for md and up
               />
             </Link>
           </div>
@@ -34,7 +35,10 @@ export function Navigation() {
               >
                 HOME
               </Link>
-              <Link href="/contact" className="text-slate-700 hover:text-blue-600 text-sm font-medium transition-colors">
+              <Link
+                href="/contact"
+                className="text-slate-700 hover:text-blue-600 text-sm font-medium transition-colors"
+              >
                 CONTACT US
               </Link>
             </div>
