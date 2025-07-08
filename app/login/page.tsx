@@ -63,15 +63,6 @@ export default function LoginPage() {
           {/* Login Card */}
           <Card className="border-0 my-4 shadow-2xl bg-primary-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-6 sm:pb-8">
-              <div className="flex justify-center mb-4 sm:mb-6">
-                <Image
-                  src="/images/logo.png"
-                  alt="FIRE Logo"
-                  width={150}
-                  height={50}
-                  className="h-12 w-auto sm:h-16 sm:w-auto"
-                />
-              </div>
               <CardTitle className="text-xl sm:text-2xl font-bold text-primary-dark-blue">Welcome Back</CardTitle>
               <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">Sign in to access your agent dashboard</p>
             </CardHeader>
