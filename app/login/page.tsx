@@ -1,29 +1,148 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, LogIn, User, Lock, AlertCircle } from "lucide-react"
-import Image from "next/image"
-import { SupportTicketModal } from "@/components/support-ticket-modal"
-import { Header } from "@/components/header"
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Eye, EyeOff, AlertCircle, HelpCircle } from "lucide-react"
+import Image from "next/image"
+import { toast } from "@/hooks/use-toast"
+
+interface LoginUser {
+  id: number
+  emailaddress: string
+  firstname?: string
+  lastname?: string
+  name?: string
+}
 
 export default function LoginPage() {
   const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
   const [formData, setFormData] = useState({
     emailaddress: "",
     password: "",
   })
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  // Support ticket modal state
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
+  const [ticketData, setTicketData] = useState({
+    fullName: "",
+    email: "",
+    subject: "",
+    message: "",
+  })
+  const [isSubmittingTicket, setIsSubmittingTicket] = useState(false)
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+    // Clear error when user starts typing
+    if (error) setError("")
+  }
+
+  const handleTicketInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setTicketData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const getDeviceInfo = () => {
+    const userAgent = navigator.userAgent
+    let browserName = "Unknown"
+    let osName = "Unknown"
+
+    // Detect browser
+    if (userAgent.includes("Chrome")) browserName = "Chrome"
+    else if (userAgent.includes("Firefox")) browserName = "Firefox"
+    else if (userAgent.includes("Safari")) browserName = "Safari"
+    else if (userAgent.includes("Edge")) browserName = "Edge"
+
+    // Detect OS
+    if (userAgent.includes("Windows")) osName = "Windows"
+    else if (userAgent.includes("Mac")) osName = "macOS"
+    else if (userAgent.includes("Linux")) osName = "Linux"
+    else if (userAgent.includes("Android")) osName = "Android"
+    else if (userAgent.includes("iOS")) osName = "iOS"
+
+    return {
+      browser: browserName,
+      os: osName,
+      userAgent: userAgent,
+      screenResolution: `${screen.width}x${screen.height}`,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  const handleSubmitTicket = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmittingTicket(true)
+
+    try {
+      const deviceInfo = getDeviceInfo()
+
+      const response = await fetch("https://realestatetraining.ph/api/support-tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: ticketData.fullName,
+          email: ticketData.email,
+          subject: ticketData.subject,
+          message: ticketData.message,
+          priority: "medium", // Default priority
+          device_info: JSON.stringify(deviceInfo),
+          source: "login_page",
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Support ticket submitted",
+          description: "We'll get back to you as soon as possible.",
+        })
+        setIsTicketModalOpen(false)
+        setTicketData({
+          fullName: "",
+          email: "",
+          subject: "",
+          message: "",
+        })
+      } else {
+        throw new Error("Failed to submit ticket")
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit support ticket. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmittingTicket(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,7 +154,6 @@ export default function LoginPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
         body: JSON.stringify({
           emailaddress: formData.emailaddress,
@@ -46,17 +164,21 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        // Store user session
+        // Store user data and login status
         localStorage.setItem("user", JSON.stringify(data.user))
         localStorage.setItem("isLoggedIn", "true")
+
+        toast({
+          title: "Login successful",
+          description: "Welcome back!",
+        })
 
         // Redirect to dashboard
         router.push("/dashboard")
       } else {
-        setError(data.message || "Invalid credentials. Please try again.")
+        setError(data.message || "Invalid credentials")
       }
     } catch (error) {
-      console.error("Login error:", error)
       setError("Network error. Please check your connection and try again.")
     } finally {
       setIsLoading(false)
@@ -64,29 +186,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <Navigation />
+    <div className="min-h-screen bg-gradient-to-br from-[#001f3f] to-[#003366] flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Image
+            src="/images/FIRE-LOGO-NEW-TRANSPARENT-WHITE.png"
+            alt="FIRE Logo"
+            width={200}
+            height={80}
+            className="mx-auto mb-4 drop-shadow-lg"
+          />
+          <h1 className="text-2xl font-bold text-white mb-2">Welcome to FIRE</h1>
+          <p className="text-blue-100">Sign in to access your training dashboard</p>
+        </div>
 
-      <div className="flex-grow bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4 sm:p-6">
-        <div className="w-full max-w-sm sm:max-w-md">
-          {/* Login Card */}
-          <Card className="border-0 my-4 shadow-2xl bg-white/80 backdrop-blur-sm">
-            <CardHeader className="text-center pb-6 sm:pb-8">
-              <div className="flex justify-center mb-4 sm:mb-6">
-                <Image
-                  src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
-                  alt="FIRE Logo"
-                  width={150}
-                  height={50}
-                  className="h-12 w-auto sm:h-16 sm:w-auto"
-                />
-              </div>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-[#001f3f]">Welcome Back</CardTitle>
-              <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">Sign in to access your agent dashboard</p>
-            </CardHeader>
-
-            <CardContent className="space-y-4 sm:space-y-6">
+        {/* Login Card */}
+        <Card className="shadow-2xl border-0">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center text-[#001f3f]">Sign In</CardTitle>
+            <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
@@ -94,96 +216,135 @@ export default function LoginPage() {
                 </Alert>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="emailaddress" className="text-sm font-semibold text-gray-700">
-                    Email Address
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
-                    <Input
-                      id="emailaddress"
-                      type="email"
-                      value={formData.emailaddress}
-                      onChange={(e) => setFormData({ ...formData, emailaddress: e.target.value })}
-                      className="pl-9 sm:pl-10 h-10 sm:h-12 border-gray-300 focus:border-[#001f3f] focus:ring-[#001f3f] text-sm sm:text-base"
-                      placeholder="Enter your email"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="emailaddress">Email Address</Label>
+                <Input
+                  id="emailaddress"
+                  name="emailaddress"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.emailaddress}
+                  onChange={handleInputChange}
+                  required
+                  className="h-11"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
-                    Password
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-12 border-gray-300 focus:border-[#001f3f] focus:ring-[#001f3f] text-sm sm:text-base"
-                      placeholder="Enter your password"
-                      required
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      disabled={isLoading}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                      ) : (
-                        <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-10 sm:h-12 bg-gradient-to-r from-[#001f3f] to-blue-700 hover:from-[#001f3f] hover:to-[#001f3f] text-base sm:text-lg font-semibold shadow-lg"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 sm:w-5 sm:h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Signing In...
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      Sign In
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              <div className="text-center space-y-3 sm:space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-xs sm:text-sm">
-                    <span className="px-2 bg-white text-gray-500">Need help?</span>
-                  </div>
-                </div>
-
-                <div className="text-xs sm:text-sm text-gray-600">
-                  Having trouble logging in? <SupportTicketModal />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    className="h-11 pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              <Button
+                type="submit"
+                className="w-full h-11 bg-[#001f3f] hover:bg-[#001f3f]/90 text-white font-medium"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+
+            {/* Support Section */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-3">Need help accessing your account?</p>
+                <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full bg-transparent">
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Create Support Ticket
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Create Support Ticket</DialogTitle>
+                      <DialogDescription>
+                        Having trouble? Let us know and we'll help you get back on track.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmitTicket} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="fullName">Full Name</Label>
+                        <Input
+                          id="fullName"
+                          name="fullName"
+                          value={ticketData.fullName}
+                          onChange={handleTicketInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={ticketData.email}
+                          onChange={handleTicketInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="subject">Subject</Label>
+                        <Input
+                          id="subject"
+                          name="subject"
+                          value={ticketData.subject}
+                          onChange={handleTicketInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Message</Label>
+                        <Textarea
+                          id="message"
+                          name="message"
+                          rows={4}
+                          value={ticketData.message}
+                          onChange={handleTicketInputChange}
+                          required
+                        />
+                      </div>
+                      <Button type="submit" className="w-full" disabled={isSubmittingTicket}>
+                        {isSubmittingTicket ? "Submitting..." : "Submit Ticket"}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-blue-100 text-sm">© 2024 Filipino Homes Institute of Real Estate. All rights reserved.</p>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

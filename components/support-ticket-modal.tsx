@@ -15,241 +15,149 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react"
+import { HelpCircle } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
 
-export function SupportTicketModal() {
+interface SupportTicketModalProps {
+  trigger?: React.ReactNode
+}
+
+export function SupportTicketModal({ trigger }: SupportTicketModalProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
-  const [errorMessage, setErrorMessage] = useState("")
   const [formData, setFormData] = useState({
-    full_name: "",
+    fullName: "",
     email: "",
     subject: "",
     message: "",
   })
 
-  // Function to detect device information
-  const getDeviceInfo = () => {
-    const userAgent = navigator.userAgent
-    let deviceType = "Desktop"
-    let browser = "Unknown"
-    let os = "Unknown"
-
-    // Device type detection
-    if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
-      deviceType = "Tablet"
-    } else if (
-      /mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent)
-    ) {
-      deviceType = "Mobile"
-    }
-
-    // Browser detection
-    if (userAgent.includes("Chrome")) browser = "Chrome"
-    else if (userAgent.includes("Firefox")) browser = "Firefox"
-    else if (userAgent.includes("Safari")) browser = "Safari"
-    else if (userAgent.includes("Edge")) browser = "Edge"
-    else if (userAgent.includes("Opera")) browser = "Opera"
-
-    // OS detection
-    if (userAgent.includes("Windows")) os = "Windows"
-    else if (userAgent.includes("Mac")) os = "macOS"
-    else if (userAgent.includes("Linux")) os = "Linux"
-    else if (userAgent.includes("Android")) os = "Android"
-    else if (userAgent.includes("iOS")) os = "iOS"
-
-    return { deviceType, browser, os }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
   }
 
-  // Function to get IP and location information
-  const getLocationInfo = async () => {
-    try {
-      const response = await fetch("https://ipapi.co/json/")
-      const data = await response.json()
-      return {
-        ipaddress: data.ip || "",
-        country: data.country_name || "",
-        city_from_ip: data.city || "",
-        isp: data.org || "",
-        city_from_isp: data.city || "",
-      }
-    } catch (error) {
-      console.error("Error getting location info:", error)
-      return {
-        ipaddress: "",
-        country: "",
-        city_from_ip: "",
-        isp: "",
-        city_from_isp: "",
-      }
+  const getDeviceInfo = () => {
+    const userAgent = navigator.userAgent
+    let browserName = "Unknown"
+    let osName = "Unknown"
+
+    // Detect browser
+    if (userAgent.includes("Chrome")) browserName = "Chrome"
+    else if (userAgent.includes("Firefox")) browserName = "Firefox"
+    else if (userAgent.includes("Safari")) browserName = "Safari"
+    else if (userAgent.includes("Edge")) browserName = "Edge"
+
+    // Detect OS
+    if (userAgent.includes("Windows")) osName = "Windows"
+    else if (userAgent.includes("Mac")) osName = "macOS"
+    else if (userAgent.includes("Linux")) osName = "Linux"
+    else if (userAgent.includes("Android")) osName = "Android"
+    else if (userAgent.includes("iOS")) osName = "iOS"
+
+    return {
+      browser: browserName,
+      os: osName,
+      userAgent: userAgent,
+      screenResolution: `${screen.width}x${screen.height}`,
+      timestamp: new Date().toISOString(),
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    setSubmitStatus("idle")
-    setErrorMessage("")
 
     try {
-      // Validate required fields
-      if (!formData.full_name || !formData.email || !formData.subject || !formData.message) {
-        setErrorMessage("Please fill in all required fields.")
-        setSubmitStatus("error")
-        return
-      }
-
-      // Get device and location information
       const deviceInfo = getDeviceInfo()
-      const locationInfo = await getLocationInfo()
-
-      // Prepare the data for submission
-      const submitData = {
-        ...formData,
-        ...deviceInfo,
-        ...locationInfo,
-        status: "Open",
-      }
 
       const response = await fetch("https://realestatetraining.ph/api/support-tickets", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
-        body: JSON.stringify(submitData),
+        body: JSON.stringify({
+          full_name: formData.fullName,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          priority: "medium", // Default priority
+          device_info: JSON.stringify(deviceInfo),
+          source: "support_modal",
+        }),
       })
 
-      const result = await response.json()
-
       if (response.ok) {
-        setSubmitStatus("success")
-        // Reset form
+        toast({
+          title: "Support ticket submitted",
+          description: "We'll get back to you as soon as possible.",
+        })
+        setIsOpen(false)
         setFormData({
-          full_name: "",
+          fullName: "",
           email: "",
           subject: "",
           message: "",
         })
-        // Close modal after 2 seconds
-        setTimeout(() => {
-          setIsOpen(false)
-          setSubmitStatus("idle")
-        }, 2000)
       } else {
-        setErrorMessage(result.message || "Failed to submit support ticket. Please try again.")
-        setSubmitStatus("error")
+        throw new Error("Failed to submit ticket")
       }
     } catch (error) {
-      console.error("Error submitting support ticket:", error)
-      setErrorMessage("Network error. Please check your connection and try again.")
-      setSubmitStatus("error")
+      toast({
+        title: "Error",
+        description: "Failed to submit support ticket. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const defaultTrigger = (
+    <Button variant="outline" className="w-full bg-transparent">
+      <HelpCircle className="w-4 h-4 mr-2" />
+      Create Support Ticket
+    </Button>
+  )
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <button className="text-blue-600 hover:text-blue-800 underline">Create a ticket</button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create Support Ticket</DialogTitle>
-          <DialogDescription>
-            Need help? Submit a support ticket and our team will get back to you as soon as possible.
-          </DialogDescription>
+          <DialogDescription>Having trouble? Let us know and we'll help you get back on track.</DialogDescription>
         </DialogHeader>
-
-        {submitStatus === "success" && (
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Your support ticket has been submitted successfully! We'll get back to you soon.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {submitStatus === "error" && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="full_name">Full Name *</Label>
-            <Input
-              id="full_name"
-              value={formData.full_name}
-              onChange={(e) => handleInputChange("full_name", e.target.value)}
-              placeholder="Enter your full name"
-              disabled={isSubmitting}
-              required
-            />
+            <Label htmlFor="fullName">Full Name</Label>
+            <Input id="fullName" name="fullName" value={formData.fullName} onChange={handleInputChange} required />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              placeholder="Enter your email address"
-              disabled={isSubmitting}
-              required
-            />
+            <Label htmlFor="email">Email Address</Label>
+            <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="subject">Subject *</Label>
-            <Input
-              id="subject"
-              value={formData.subject}
-              onChange={(e) => handleInputChange("subject", e.target.value)}
-              placeholder="Brief description of your issue"
-              disabled={isSubmitting}
-              required
-            />
+            <Label htmlFor="subject">Subject</Label>
+            <Input id="subject" name="subject" value={formData.subject} onChange={handleInputChange} required />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="message">Message *</Label>
+            <Label htmlFor="message">Message</Label>
             <Textarea
               id="message"
+              name="message"
+              rows={4}
               value={formData.message}
-              onChange={(e) => handleInputChange("message", e.target.value)}
-              placeholder="Please describe your issue in detail..."
-              className="min-h-[100px]"
-              disabled={isSubmitting}
+              onChange={handleInputChange}
               required
             />
           </div>
-
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-[#001f3f] hover:bg-[#001f3f]/90">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Submit Ticket"
-              )}
-            </Button>
-          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit Ticket"}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>
