@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { CheckCircle, Loader2, XCircle, Send } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -16,20 +16,79 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+
+interface LocationData {
+  ip: string
+  country: string
+  city: string
+  isp: string
+}
 
 export function SupportTicketModal() {
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
-    name: "",
+    full_name: "",
     email: "",
     subject: "",
-    priority: "",
     message: "",
   })
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle")
   const [isLoading, setIsLoading] = useState(false)
+  const [locationData, setLocationData] = useState<LocationData | null>(null)
+
+  // Get user's location and device info
+  useEffect(() => {
+    const fetchLocationData = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/")
+        const data = await response.json()
+        setLocationData({
+          ip: data.ip,
+          country: data.country_name,
+          city: data.city,
+          isp: data.org,
+        })
+      } catch (error) {
+        console.error("Failed to fetch location data:", error)
+      }
+    }
+
+    fetchLocationData()
+  }, [])
+
+  // Get device information
+  const getDeviceInfo = () => {
+    const userAgent = navigator.userAgent
+
+    // Device type detection
+    let deviceType = "Desktop"
+    if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
+      deviceType = "Tablet"
+    } else if (
+      /mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent)
+    ) {
+      deviceType = "Mobile"
+    }
+
+    // Browser detection
+    let browser = "Unknown"
+    if (userAgent.includes("Chrome")) browser = "Chrome"
+    else if (userAgent.includes("Firefox")) browser = "Firefox"
+    else if (userAgent.includes("Safari")) browser = "Safari"
+    else if (userAgent.includes("Edge")) browser = "Edge"
+    else if (userAgent.includes("Opera")) browser = "Opera"
+
+    // OS detection
+    let os = "Unknown"
+    if (userAgent.includes("Windows")) os = "Windows"
+    else if (userAgent.includes("Mac")) os = "macOS"
+    else if (userAgent.includes("Linux")) os = "Linux"
+    else if (userAgent.includes("Android")) os = "Android"
+    else if (userAgent.includes("iOS")) os = "iOS"
+
+    return { deviceType, browser, os }
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -38,31 +97,63 @@ export function SupportTicketModal() {
     })
   }
 
-  const handleSelectChange = (value: string) => {
-    setFormData({ ...formData, priority: value })
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setStatus("idle")
 
-    // Simulate an API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    if (!formData.full_name || !formData.email || !formData.subject || !formData.message) {
+      setStatus("error")
+      setIsLoading(false)
+      return
+    }
 
     try {
-      // Simulate success
-      if (formData.name && formData.email && formData.subject && formData.priority && formData.message) {
+      const deviceInfo = getDeviceInfo()
+
+      const ticketData = {
+        full_name: formData.full_name,
+        email: formData.email,
+        subject: formData.subject,
+        priority: "medium", // Default priority
+        message: formData.message,
+        status: "Open",
+        ipaddress: locationData?.ip || "",
+        country: locationData?.country || "",
+        city_from_ip: locationData?.city || "",
+        device_type: deviceInfo.deviceType,
+        browser: deviceInfo.browser,
+        os: deviceInfo.os,
+        isp: locationData?.isp || "",
+        city_from_isp: locationData?.city || "",
+        user_id: null,
+        assigned_to: null,
+      }
+
+      const response = await fetch("https://realestatetraining.ph/api/support-tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(ticketData),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
         setStatus("success")
-        setFormData({ name: "", email: "", subject: "", priority: "", message: "" })
+        setFormData({ full_name: "", email: "", subject: "", message: "" })
         setTimeout(() => {
           setOpen(false)
           setStatus("idle")
         }, 3000)
       } else {
+        const errorData = await response.json()
+        console.error("API Error:", errorData)
         setStatus("error")
       }
     } catch (error) {
+      console.error("Network Error:", error)
       setStatus("error")
     } finally {
       setIsLoading(false)
@@ -87,12 +178,12 @@ export function SupportTicketModal() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">
+            <Label htmlFor="full_name" className="text-sm font-medium">
               Full Name *
             </Label>
             <Input
-              id="name"
-              value={formData.name}
+              id="full_name"
+              value={formData.full_name}
               onChange={handleChange}
               placeholder="Enter your full name"
               className="text-sm sm:text-base h-9 sm:h-10"
@@ -130,22 +221,6 @@ export function SupportTicketModal() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="priority" className="text-sm font-medium">
-              Priority Level *
-            </Label>
-            <Select value={formData.priority} onValueChange={handleSelectChange} disabled={isLoading} required>
-              <SelectTrigger className="w-full text-sm sm:text-base h-9 sm:h-10">
-                <SelectValue placeholder="Select priority level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="low">Low - General inquiry</SelectItem>
-                <SelectItem value="medium">Medium - Account issue</SelectItem>
-                <SelectItem value="high">High - Cannot access courses</SelectItem>
-                <SelectItem value="urgent">Urgent - Technical problem</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="message" className="text-sm font-medium">
               Message *
             </Label>
@@ -162,7 +237,7 @@ export function SupportTicketModal() {
           {status === "success" && (
             <div className="flex items-center gap-2 text-green-600 text-sm sm:text-base">
               <CheckCircle className="h-4 w-4" />
-              <span>Ticket submitted successfully!</span>
+              <span>Support ticket submitted successfully!</span>
             </div>
           )}
           {status === "error" && (
