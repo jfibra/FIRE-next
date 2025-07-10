@@ -1,0 +1,178 @@
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import { LayoutDashboard, UserCircle, Download, Award, LogOut, Menu, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useRouter } from "next/navigation"
+
+interface DashboardSidebarProps {
+  user: {
+    id: number
+    emailaddress: string
+    firstname?: string
+    lastname?: string
+    name?: string
+  }
+  activeMenu: string
+  onLogout: () => void
+}
+
+export function DashboardSidebar({ user, activeMenu, onLogout }: DashboardSidebarProps) {
+  const router = useRouter()
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const getUserDisplayName = () =>
+    user?.name || `${user?.firstname || ""} ${user?.lastname || ""}`.trim() || user?.emailaddress || "User"
+
+  const menuItems = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { id: "profile", label: "Profile Management", icon: UserCircle, href: "/dashboard/profile" },
+    { id: "downloadables", label: "Downloadables", icon: Download, href: "/dashboard/downloadables" },
+    { id: "certificate", label: "Generate Your Certificate", icon: Award, href: "/dashboard/certificate" },
+    { id: "logout", label: "Logout", icon: LogOut, onClick: onLogout },
+  ]
+
+  const handleMenuClick = (item: any) => {
+    if (item.onClick) {
+      item.onClick()
+    } else if (item.href) {
+      router.push(item.href)
+    }
+    setMobileOpen(false)
+  }
+
+  // Mobile overlay
+  if (mobileOpen) {
+    return (
+      <>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setMobileOpen(false)} />
+        <aside className="fixed left-0 top-0 h-full w-80 bg-[#001f3f] text-white flex flex-col shadow-2xl z-50 lg:hidden">
+          <div className="flex items-center justify-between p-4 border-b border-[#001f3f]/40">
+            <div className="flex items-center space-x-3">
+              <Image src="/images/FIRE-LOGO-NEW-TRANSPARENT.png" alt="FIRE" height={32} width={32} />
+              <span className="font-bold text-xl">FIRE</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/10"
+              onClick={() => setMobileOpen(false)}
+            >
+              <X className="w-6 h-6" />
+            </Button>
+          </div>
+          <nav className="flex-1 overflow-y-auto py-4">
+            {menuItems.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleMenuClick(item)}
+                className={`group flex items-center w-full px-4 py-3 text-base font-medium transition-colors ${
+                  activeMenu === item.id ? "bg-white/10" : "hover:bg-white/10"
+                } ${item.id === "logout" ? "text-red-300 hover:text-red-200" : ""}`}
+              >
+                <item.icon className="w-6 h-6 flex-shrink-0" />
+                <span className="ml-3">{item.label}</span>
+              </button>
+            ))}
+          </nav>
+          <div className="p-4 border-t border-[#001f3f]/40 flex items-center space-x-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src="/placeholder-user.png" alt={getUserDisplayName()} />
+              <AvatarFallback className="bg-[#fde047] text-[#001f3f] text-base font-bold">
+                {getUserDisplayName().charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-base font-semibold truncate">{getUserDisplayName()}</p>
+              <p className="text-sm text-gray-300 truncate">{user?.emailaddress}</p>
+            </div>
+          </div>
+        </aside>
+      </>
+    )
+  }
+
+  return (
+    <>
+      {/* Mobile menu button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="fixed top-4 left-4 z-30 lg:hidden bg-white shadow-md"
+        onClick={() => setMobileOpen(true)}
+      >
+        <Menu className="w-6 h-6 text-[#001f3f]" />
+      </Button>
+
+      {/* Desktop sidebar */}
+      <aside
+        className={`hidden lg:flex ${
+          collapsed ? "w-16 xl:w-20" : "w-64 xl:w-80"
+        } transition-all duration-300 bg-[#001f3f] text-white flex-col shadow-2xl`}
+      >
+        <div className="flex items-center justify-between p-4 xl:p-6 border-b border-[#001f3f]/40">
+          <div className="flex items-center space-x-3 overflow-hidden">
+            <Image
+              src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
+              alt="FIRE"
+              height={collapsed ? 32 : 40}
+              width={collapsed ? 32 : 40}
+              className="flex-shrink-0"
+            />
+            {!collapsed && <span className="font-bold text-xl xl:text-2xl">FIRE</span>}
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-white/10 h-8 xl:h-10 w-8 xl:w-10"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+              className="w-5 xl:w-6 h-5 xl:h-6"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </Button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-4 xl:py-6">
+          {menuItems.map((item) => (
+            <button
+              key={item.label}
+              onClick={() => handleMenuClick(item)}
+              className={`group flex items-center w-full px-4 xl:px-6 py-3 xl:py-4 text-sm xl:text-lg font-medium transition-colors ${
+                activeMenu === item.id ? "bg-white/10" : "hover:bg-white/10"
+              } ${item.id === "logout" ? "text-red-300 hover:text-red-200" : ""}`}
+            >
+              <item.icon className="w-5 xl:w-7 h-5 xl:h-7 flex-shrink-0" />
+              {!collapsed && <span className="ml-3 xl:ml-4">{item.label}</span>}
+            </button>
+          ))}
+        </nav>
+
+        <div className="p-4 xl:p-6 border-t border-[#001f3f]/40 flex items-center space-x-3 xl:space-x-4">
+          <Avatar className="h-8 xl:h-12 w-8 xl:w-12">
+            <AvatarImage src="/placeholder-user.png" alt={getUserDisplayName()} />
+            <AvatarFallback className="bg-[#fde047] text-[#001f3f] text-sm xl:text-lg font-bold">
+              {getUserDisplayName().charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="text-sm xl:text-lg font-semibold truncate">{getUserDisplayName()}</p>
+              <p className="text-xs xl:text-sm text-gray-300 truncate">{user?.emailaddress}</p>
+            </div>
+          )}
+        </div>
+      </aside>
+    </>
+  )
+}
