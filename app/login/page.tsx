@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Eye, EyeOff, AlertCircle, HelpCircle } from "lucide-react"
+import { Loader2, Eye, EyeOff, AlertCircle, HelpCircle, CheckCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,8 @@ export default function LoginPage() {
     password: "",
   })
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
+  const [messageType, setMessageType] = useState<"error" | "success" | "info">("error")
   const [showPassword, setShowPassword] = useState(false)
   const [supportTicket, setSupportTicket] = useState({
     fullName: "",
@@ -46,7 +47,10 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }))
-    if (error) setError("")
+    if (message) {
+      setMessage("")
+      setMessageType("error")
+    }
   }
 
   const handleSupportTicketChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -134,7 +138,8 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError("")
+    setMessage("")
+    setMessageType("error")
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://realestatetraining.ph/api"}/login`, {
@@ -147,7 +152,12 @@ export default function LoginPage() {
 
       const data = await response.json()
 
-      if (response.ok) {
+      // Handle different response statuses with specific messages
+      if (response.status === 200) {
+        // Success - Login successful
+        setMessage(data.message || "Login successful! Redirecting to your dashboard...")
+        setMessageType("success")
+
         // Store user data and login status
         localStorage.setItem("user", JSON.stringify(data.user))
         localStorage.setItem("isLoggedIn", "true")
@@ -157,15 +167,53 @@ export default function LoginPage() {
           description: "Welcome back to FIRE Training Portal!",
         })
 
-        // Redirect to dashboard
-        router.push("/dashboard")
+        // Redirect to dashboard after a brief delay to show success message
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 1500)
+      } else if (response.status === 404) {
+        // User not found
+        setMessage(data.message || "User not found, checking with LR records.")
+        setMessageType("info")
+      } else if (response.status === 401) {
+        // Wrong password
+        setMessage(data.message || "Wrong password for the account.")
+        setMessageType("error")
       } else {
-        setError(data.message || "Invalid credentials. Please try again.")
+        // Other errors
+        setMessage(data.message || "An unexpected error occurred. Please try again.")
+        setMessageType("error")
       }
     } catch (error) {
-      setError("Network error. Please check your connection and try again.")
+      console.error("Login error:", error)
+      setMessage("Network error. Please check your connection and try again.")
+      setMessageType("error")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const getAlertVariant = () => {
+    switch (messageType) {
+      case "success":
+        return "default"
+      case "info":
+        return "default"
+      case "error":
+      default:
+        return "destructive"
+    }
+  }
+
+  const getAlertIcon = () => {
+    switch (messageType) {
+      case "success":
+        return <CheckCircle className="h-4 w-4" />
+      case "info":
+        return <HelpCircle className="h-4 w-4" />
+      case "error":
+      default:
+        return <AlertCircle className="h-4 w-4" />
     }
   }
 
@@ -192,10 +240,25 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
+            {message && (
+              <Alert
+                variant={getAlertVariant()}
+                className={
+                  messageType === "success"
+                    ? "border-green-200 bg-green-50"
+                    : messageType === "info"
+                      ? "border-blue-200 bg-blue-50"
+                      : ""
+                }
+              >
+                {getAlertIcon()}
+                <AlertDescription
+                  className={
+                    messageType === "success" ? "text-green-800" : messageType === "info" ? "text-blue-800" : ""
+                  }
+                >
+                  {message}
+                </AlertDescription>
               </Alert>
             )}
 
