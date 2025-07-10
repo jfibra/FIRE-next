@@ -19,14 +19,35 @@ interface DashboardHeaderProps {
     emailaddress: string
     firstname?: string
     lastname?: string
-    name?: string
+    fullname?: string
+    s3bucket?: string
   }
   onLogout: () => void
 }
 
 export function DashboardHeader({ user, onLogout }: DashboardHeaderProps) {
-  const getUserDisplayName = () =>
-    user?.name || `${user?.firstname || ""} ${user?.lastname || ""}`.trim() || user?.emailaddress || "User"
+  const getUserDisplayName = () => {
+    if (user?.fullname) return user.fullname
+    if (user?.firstname && user?.lastname) return `${user.firstname} ${user.lastname}`
+    if (user?.firstname) return user.firstname
+    return user?.emailaddress || "User"
+  }
+
+  const getUserInitials = () => {
+    const name = getUserDisplayName()
+    if (name === user?.emailaddress) {
+      return name.charAt(0).toUpperCase()
+    }
+    const nameParts = name.split(" ")
+    if (nameParts.length >= 2) {
+      return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
+    }
+    return name.charAt(0).toUpperCase()
+  }
+
+  const getProfileImageUrl = () => {
+    return user?.s3bucket || "/placeholder-user.png"
+  }
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b-2 border-gray-200 shadow-sm">
@@ -55,9 +76,16 @@ export function DashboardHeader({ user, onLogout }: DashboardHeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full h-10 lg:h-12 w-10 lg:w-12">
                 <Avatar className="h-8 lg:h-10 w-8 lg:w-10">
-                  <AvatarImage src="/placeholder-user.png" alt={getUserDisplayName()} />
+                  <AvatarImage
+                    src={getProfileImageUrl() || "/placeholder.svg"}
+                    alt={getUserDisplayName()}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.src = "/placeholder-user.png"
+                    }}
+                  />
                   <AvatarFallback className="bg-[#fde047] text-[#001f3f] text-sm lg:text-lg font-bold">
-                    {getUserDisplayName().charAt(0).toUpperCase()}
+                    {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
               </Button>

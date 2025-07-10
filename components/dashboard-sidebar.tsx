@@ -13,7 +13,8 @@ interface DashboardSidebarProps {
     emailaddress: string
     firstname?: string
     lastname?: string
-    name?: string
+    fullname?: string
+    s3bucket?: string
   }
   activeMenu: string
   onLogout: () => void
@@ -24,8 +25,28 @@ export function DashboardSidebar({ user, activeMenu, onLogout }: DashboardSideba
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const getUserDisplayName = () =>
-    user?.name || `${user?.firstname || ""} ${user?.lastname || ""}`.trim() || user?.emailaddress || "User"
+  const getUserDisplayName = () => {
+    if (user?.fullname) return user.fullname
+    if (user?.firstname && user?.lastname) return `${user.firstname} ${user.lastname}`
+    if (user?.firstname) return user.firstname
+    return user?.emailaddress || "User"
+  }
+
+  const getUserInitials = () => {
+    const name = getUserDisplayName()
+    if (name === user?.emailaddress) {
+      return name.charAt(0).toUpperCase()
+    }
+    const nameParts = name.split(" ")
+    if (nameParts.length >= 2) {
+      return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
+    }
+    return name.charAt(0).toUpperCase()
+  }
+
+  const getProfileImageUrl = () => {
+    return user?.s3bucket || "/placeholder-user.png"
+  }
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -80,9 +101,16 @@ export function DashboardSidebar({ user, activeMenu, onLogout }: DashboardSideba
           </nav>
           <div className="p-4 border-t border-[#001f3f]/40 flex items-center space-x-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src="/placeholder-user.png" alt={getUserDisplayName()} />
+              <AvatarImage
+                src={getProfileImageUrl() || "/placeholder.svg"}
+                alt={getUserDisplayName()}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = "/placeholder-user.png"
+                }}
+              />
               <AvatarFallback className="bg-[#fde047] text-[#001f3f] text-base font-bold">
-                {getUserDisplayName().charAt(0).toUpperCase()}
+                {getUserInitials()}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
@@ -160,9 +188,16 @@ export function DashboardSidebar({ user, activeMenu, onLogout }: DashboardSideba
 
         <div className="p-4 xl:p-6 border-t border-[#001f3f]/40 flex items-center space-x-3 xl:space-x-4">
           <Avatar className="h-8 xl:h-12 w-8 xl:w-12">
-            <AvatarImage src="/placeholder-user.png" alt={getUserDisplayName()} />
+            <AvatarImage
+              src={getProfileImageUrl() || "/placeholder.svg"}
+              alt={getUserDisplayName()}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.src = "/placeholder-user.png"
+              }}
+            />
             <AvatarFallback className="bg-[#fde047] text-[#001f3f] text-sm xl:text-lg font-bold">
-              {getUserDisplayName().charAt(0).toUpperCase()}
+              {getUserInitials()}
             </AvatarFallback>
           </Avatar>
           {!collapsed && (

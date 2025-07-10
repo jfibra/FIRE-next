@@ -3,18 +3,47 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Camera, Save, Loader2, CheckCircle, AlertCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "@/hooks/use-toast"
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { useToast } from "@/hooks/use-toast"
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  Facebook,
+  Loader2,
+  Calendar,
+  Building,
+  Users,
+  CheckCircle,
+  AlertCircle,
+  Camera,
+  Save,
+  Edit3,
+  Briefcase,
+  Award,
+  Star,
+  TrendingUp,
+  Shield,
+  Sparkles,
+  Crown,
+  Zap,
+  Heart,
+  Target,
+} from "lucide-react"
+
+const API_BASE_URL = "https://realestatetraining.ph/api"
 
 interface UserProfile {
   id: number
+  lrid?: string
   firstname: string
   lastname: string
   fullname: string
@@ -26,123 +55,128 @@ interface UserProfile {
   city?: string
   barangay?: string
   civilStatus?: string
+  birthday?: string
   site?: string
   fbLink?: string
+  invitedBy?: string
+  brokerID?: string
+  teamname?: string
+  tlName?: string
+  photo?: string
   s3bucket?: string
+  userrole?: string
+  endorsement?: string
+  endorsement_notes?: string
+  status?: string
+  verification?: string
+  created_at?: string
+  updated_at?: string
 }
 
 export default function ProfilePage() {
-  const { toast } = useToast()
+  const router = useRouter()
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setSaving] = useState(false)
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
-  const [message, setMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null)
-
-  const [formData, setFormData] = useState({
-    firstname: "",
-    lastname: "",
-    emailaddress: "",
-    phone: "",
-    cellphone: "",
-    gender: "",
-    state: "",
-    city: "",
-    barangay: "",
-    civilStatus: "",
-    site: "",
-    fbLink: "",
-  })
+  const [isUploading, setIsUploading] = useState(false)
+  const [formData, setFormData] = useState<Partial<UserProfile>>({})
+  const [editingSection, setEditingSection] = useState<string | null>(null)
 
   useEffect(() => {
-    loadUserProfile()
-  }, [])
+    const isLoggedIn = localStorage.getItem("isLoggedIn")
+    const userData = localStorage.getItem("user")
 
-  const loadUserProfile = async () => {
+    if (!isLoggedIn || !userData) {
+      router.push("/login")
+      return
+    }
+
     try {
-      const userData = localStorage.getItem("user")
-      if (!userData) return
+      const parsedUser = JSON.parse(userData)
+      setUser(parsedUser)
+      loadUserProfile(parsedUser.id)
+    } catch {
+      router.push("/login")
+    }
+  }, [router])
 
-      const currentUser = JSON.parse(userData)
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}/users/${currentUser.id}`,
-      )
-
+  const loadUserProfile = async (userId: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`)
       if (response.ok) {
-        const userProfile = await response.json()
-        setUser(userProfile)
-        setFormData({
-          firstname: userProfile.firstname || "",
-          lastname: userProfile.lastname || "",
-          emailaddress: userProfile.emailaddress || "",
-          phone: userProfile.phone || "",
-          cellphone: userProfile.cellphone || "",
-          gender: userProfile.gender || "",
-          state: userProfile.state || "",
-          city: userProfile.city || "",
-          barangay: userProfile.barangay || "",
-          civilStatus: userProfile.civilStatus || "",
-          site: userProfile.site || "",
-          fbLink: userProfile.fbLink || "",
-        })
+        const userData = await response.json()
+        setUser(userData)
+        setFormData(userData)
+        localStorage.setItem("user", JSON.stringify(userData))
       } else {
-        setMessage({ type: "error", text: "Failed to load profile data" })
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        })
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Error loading profile data" })
+      toast({
+        title: "Error",
+        description: "Network error while loading profile",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    // Clear message when user starts typing
-    if (message) setMessage(null)
+  const handleInputChange = (field: keyof UserProfile, value: string) => {
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value }
+
+      if (field === "firstname" || field === "lastname") {
+        const firstname = field === "firstname" ? value : prev.firstname || ""
+        const lastname = field === "lastname" ? value : prev.lastname || ""
+        updated.fullname = `${firstname} ${lastname}`.trim()
+      }
+
+      return updated
+    })
   }
 
   const handleSaveProfile = async () => {
     if (!user) return
 
     setSaving(true)
-    setMessage(null)
-
     try {
-      // Update fullname based on first and last name
-      const updatedData = {
-        ...formData,
-        fullname: `${formData.firstname} ${formData.lastname}`.trim(),
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}/users/${user.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedData),
+      const response = await fetch(`${API_BASE_URL}/users/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+        body: JSON.stringify(formData),
+      })
 
       const result = await response.json()
 
       if (response.ok) {
-        setMessage({ type: "success", text: result.message || "Profile updated successfully!" })
-        setUser(result.user)
-
-        // Update localStorage with new user data
-        localStorage.setItem("user", JSON.stringify(result.user))
+        setUser({ ...user, ...formData })
+        localStorage.setItem("user", JSON.stringify({ ...user, ...formData }))
+        setEditingSection(null)
 
         toast({
-          title: "Success",
-          description: "Profile updated successfully!",
+          title: "🎉 Success!",
+          description: result.message || "Profile updated successfully",
         })
       } else {
-        setMessage({ type: "error", text: result.message || "Failed to update profile" })
+        toast({
+          title: "Error",
+          description: result.message || "Failed to update profile",
+          variant: "destructive",
+        })
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Error updating profile. Please try again." })
+      toast({
+        title: "Error",
+        description: "Network error while saving profile",
+        variant: "destructive",
+      })
     } finally {
       setSaving(false)
     }
@@ -152,366 +186,826 @@ export default function ProfilePage() {
     const file = event.target.files?.[0]
     if (!file || !user) return
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
-      setMessage({ type: "error", text: "Please select a valid image file" })
+      toast({
+        title: "Error",
+        description: "Please select a valid image file",
+        variant: "destructive",
+      })
       return
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: "error", text: "Image size should be less than 5MB" })
+      toast({
+        title: "Error",
+        description: "Image size should be less than 5MB",
+        variant: "destructive",
+      })
       return
     }
 
-    setIsUploadingPhoto(true)
-    setMessage(null)
-
+    setIsUploading(true)
     try {
       const formData = new FormData()
       formData.append("photo", file)
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}/users/${user.id}/upload-photo`,
-        {
-          method: "POST",
-          body: formData,
-        },
-      )
+      const response = await fetch(`${API_BASE_URL}/users/${user.id}/upload-photo`, {
+        method: "POST",
+        body: formData,
+      })
 
       const result = await response.json()
 
       if (response.ok) {
-        setMessage({ type: "success", text: result.message || "Photo uploaded successfully!" })
-
-        // Update user data with new photo URL
         const updatedUser = { ...user, s3bucket: result.photo_url }
         setUser(updatedUser)
         localStorage.setItem("user", JSON.stringify(updatedUser))
 
         toast({
-          title: "Success",
-          description: "Profile photo updated successfully!",
+          title: "📸 Photo Updated!",
+          description: result.message || "Profile photo updated successfully",
         })
       } else {
-        setMessage({ type: "error", text: result.message || result.error || "Failed to upload photo" })
+        toast({
+          title: "Error",
+          description: result.message || result.error || "Failed to upload photo",
+          variant: "destructive",
+        })
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Error uploading photo. Please try again." })
+      toast({
+        title: "Error",
+        description: "Network error while uploading photo",
+        variant: "destructive",
+      })
     } finally {
-      setIsUploadingPhoto(false)
+      setIsUploading(false)
     }
+  }
+
+  const getUserDisplayName = () => {
+    if (formData.fullname) return formData.fullname
+    if (formData.firstname && formData.lastname) return `${formData.firstname} ${formData.lastname}`
+    if (formData.firstname) return formData.firstname
+    return user?.emailaddress || "User"
+  }
+
+  const getUserInitials = () => {
+    const name = getUserDisplayName()
+    if (name === user?.emailaddress) {
+      return name.charAt(0).toUpperCase()
+    }
+    const nameParts = name.split(" ")
+    if (nameParts.length >= 2) {
+      return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
+    }
+    return name.charAt(0).toUpperCase()
+  }
+
+  const getLocationString = () => {
+    const parts = [formData.city, formData.state].filter(Boolean)
+    return parts.length > 0 ? parts.join(", ") : "Location not specified"
+  }
+
+  const getStatusColor = (status?: string) => {
+    switch (status?.toLowerCase()) {
+      case "active":
+        return "text-[#e0a800]"
+      case "inactive":
+        return "text-red-500"
+      case "pending":
+        return "text-[#e0a800]"
+      default:
+        return "text-gray-600"
+    }
+  }
+
+  const getProfileCompletionScore = () => {
+    const fields = [
+      user?.firstname,
+      user?.lastname,
+      user?.emailaddress,
+      user?.phone || user?.cellphone,
+      user?.city,
+      user?.state,
+      user?.s3bucket,
+      user?.lrid,
+      user?.teamname,
+    ]
+    const completed = fields.filter(Boolean).length
+    return Math.round((completed / fields.length) * 100)
   }
 
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex items-center space-x-2">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Loading profile...</span>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-6">
+            <div className="relative">
+              <div className="w-20 h-20 border-4 border-[#e0a800] rounded-full animate-spin mx-auto"></div>
+              <Sparkles className="w-8 h-8 text-[#e0a800] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-[#001f3f]">Loading Your Amazing Profile</h3>
+              <p className="text-gray-600">Preparing something spectacular...</p>
+            </div>
           </div>
         </div>
       </DashboardLayout>
     )
   }
 
+  if (!user) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <div className="relative mb-6">
+            <AlertCircle className="h-20 w-20 text-red-400 mx-auto animate-bounce" />
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full animate-ping"></div>
+          </div>
+          <h2 className="text-3xl font-bold text-[#001f3f] mb-2">Oops! Something went wrong</h2>
+          <p className="text-gray-600 mb-6">We couldn't load your profile data</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-[#e0a800] hover:bg-[#c49600] text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+          >
+            <Zap className="w-5 h-5 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  const completionScore = getProfileCompletionScore()
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 lg:space-y-8">
-        <div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#001f3f] mb-2">Profile Management</h2>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600">
-            Manage your account information and preferences
-          </p>
-        </div>
+      <div className="max-w-5xl mx-auto space-y-8 p-4">
+        {/* Exciting Profile Header with Animated Background */}
+        <Card className="overflow-hidden border-0 shadow-2xl relative">
+          {/* Animated Background */}
+          <div className="h-40 lg:h-56 relative bg-gradient-to-br from-[#001f3f] via-[#001f3f] to-[#003366] overflow-hidden">
+            {/* Floating Elements */}
+            <div className="absolute inset-0">
+              <div className="absolute top-4 left-4 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
+              <div className="absolute top-8 right-8 w-16 h-16 bg-[#e0a800]/20 rounded-full animate-bounce"></div>
+              <div className="absolute bottom-4 left-1/3 w-12 h-12 bg-[#e0a800]/20 rounded-full animate-ping"></div>
+              <div className="absolute bottom-8 right-1/4 w-8 h-8 bg-white/30 rounded-full animate-pulse"></div>
+            </div>
 
-        {/* Message Display */}
-        {message && (
-          <div
-            className={`flex items-center space-x-2 p-4 rounded-lg ${
-              message.type === "success"
-                ? "bg-green-50 text-green-700 border border-green-200"
-                : message.type === "error"
-                  ? "bg-red-50 text-red-700 border border-red-200"
-                  : "bg-blue-50 text-blue-700 border border-blue-200"
-            }`}
-          >
-            {message.type === "success" && <CheckCircle className="h-5 w-5" />}
-            {message.type === "error" && <AlertCircle className="h-5 w-5" />}
-            {message.type === "info" && <AlertCircle className="h-5 w-5" />}
-            <span>{message.text}</span>
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+
+            {/* Sparkle Effects */}
+            <div className="absolute top-6 right-12">
+              <Sparkles className="w-6 h-6 text-[#e0a800] animate-pulse" />
+            </div>
+            <div className="absolute bottom-12 left-8">
+              <Star className="w-5 h-5 text-white/70 animate-twinkle" />
+            </div>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Profile Picture Card */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="text-lg lg:text-xl">Profile Picture</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center space-y-4">
-              <div className="relative">
-                <Avatar className="h-24 w-24 lg:h-32 lg:w-32">
-                  <AvatarImage src={user?.s3bucket || "/placeholder-user.png"} alt="Profile" />
-                  <AvatarFallback className="bg-[#fde047] text-[#001f3f] text-2xl lg:text-3xl font-bold">
-                    {user?.firstname?.[0]?.toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                {isUploadingPhoto && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+          {/* Profile Content */}
+          <div className="relative px-6 lg:px-8 pb-8">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between -mt-20 lg:-mt-24">
+              <div className="flex flex-col lg:flex-row lg:items-end lg:space-x-8">
+                {/* Enhanced Avatar */}
+                <div className="relative mb-6 lg:mb-0 group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#e0a800] to-[#001f3f] rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                  <Avatar className="relative w-36 h-36 lg:w-44 lg:h-44 border-4 border-white shadow-2xl">
+                    <AvatarImage
+                      src={user.s3bucket || "/placeholder-user.png"}
+                      alt={getUserDisplayName()}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.src = "/placeholder-user.png"
+                      }}
+                    />
+                    <AvatarFallback className="bg-gradient-to-br from-[#e0a800] to-[#c49600] text-white text-4xl lg:text-6xl font-bold">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  {/* Camera Overlay with Animation */}
+                  <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer flex items-center justify-center backdrop-blur-sm">
+                    <Label htmlFor="photo-upload" className="cursor-pointer">
+                      <div className="text-center text-white">
+                        <Camera className="w-8 h-8 mx-auto mb-1 animate-bounce" />
+                        <span className="text-xs font-medium">Update Photo</span>
+                      </div>
+                    </Label>
+                    <input
+                      id="photo-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                  </div>
+
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-black/70 rounded-full flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-1" />
+                        <span className="text-xs">Uploading...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Status Ring */}
+                  <div className="absolute -bottom-2 -right-2">
+                    <div
+                      className={`w-8 h-8 rounded-full border-4 border-white shadow-lg ${
+                        user.status === "active" ? "bg-[#e0a800]" : "bg-gray-400"
+                      } flex items-center justify-center`}
+                    >
+                      {user.status === "active" && <Zap className="w-4 h-4 text-white" />}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enhanced Profile Info */}
+                <div className="flex-1 space-y-3 lg:pb-6">
+                  <div className="space-y-2">
+                    <h1 className="text-3xl lg:text-4xl font-bold text-[#001f3f] flex items-center gap-3">
+                      {getUserDisplayName()}
+                      {user.verification === "verified" && (
+                        <div className="relative">
+                          <CheckCircle className="w-8 h-8 text-[#e0a800]" />
+                          <div className="absolute inset-0 animate-ping">
+                            <CheckCircle className="w-8 h-8 text-[#e0a800] opacity-75" />
+                          </div>
+                        </div>
+                      )}
+                    </h1>
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-5 h-5 text-[#e0a800]" />
+                      <p className="text-xl text-gray-700 font-medium">{user.userrole || "Real Estate Professional"}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-4 text-gray-600">
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-5 h-5 text-[#e0a800]" />
+                      <span className="font-medium">{getLocationString()}</span>
+                    </div>
+                    {user.teamname && (
+                      <div className="flex items-center space-x-2">
+                        <Building className="w-5 h-5 text-[#001f3f]" />
+                        <span className="font-medium">{user.teamname}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Enhanced Status Badges */}
+                  <div className="flex flex-wrap items-center gap-3 mt-4">
+                    <Badge
+                      className={`px-4 py-2 text-sm font-semibold rounded-full ${
+                        user.status === "active" ? "bg-[#e0a800] text-white shadow-lg" : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full mr-2 ${
+                          user.status === "active" ? "bg-white animate-pulse" : "bg-gray-400"
+                        }`}
+                      ></div>
+                      {user.status?.charAt(0).toUpperCase() + (user.status?.slice(1) || "")} Member
+                    </Badge>
+
+                    {user.verification === "verified" && (
+                      <Badge className="bg-[#001f3f] text-white px-4 py-2 rounded-full shadow-lg">
+                        <Shield className="w-4 h-4 mr-2" />
+                        Verified Pro
+                      </Badge>
+                    )}
+
+                    <Badge className="bg-gradient-to-r from-[#001f3f] to-[#e0a800] text-white px-4 py-2 rounded-full shadow-lg">
+                      <Star className="w-4 h-4 mr-2" />
+                      {completionScore}% Complete
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-6 lg:mt-0">
+                <Button
+                  onClick={() => setEditingSection(editingSection ? null : "general")}
+                  variant="outline"
+                  className="flex-1 lg:flex-none border-2 border-[#001f3f] hover:border-[#e0a800] hover:bg-[#e0a800]/10 transition-all duration-200"
+                >
+                  <Edit3 className="w-5 h-5 mr-2" />
+                  {editingSection ? "Cancel Edit" : "Edit Profile"}
+                </Button>
+                {editingSection && (
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="flex-1 lg:flex-none bg-[#e0a800] hover:bg-[#c49600] text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Saving Magic...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5 mr-2" />
+                        Save Changes
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Profile Completion Progress */}
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-white to-gray-50">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-6 h-6 text-[#001f3f]" />
+                <h3 className="text-lg font-semibold text-[#001f3f]">Profile Strength</h3>
+              </div>
+              <div className="text-2xl font-bold text-[#e0a800]">{completionScore}%</div>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+              <div
+                className="bg-gradient-to-r from-[#001f3f] to-[#e0a800] h-3 rounded-full transition-all duration-1000 ease-out"
+                style={{ width: `${completionScore}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-600">
+              {completionScore < 70
+                ? "Complete your profile to unlock more features!"
+                : "Great job! Your profile looks amazing!"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Enhanced About Section */}
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                <div className="p-2 bg-[#001f3f]/10 rounded-lg">
+                  <Heart className="w-6 h-6 text-[#001f3f]" />
+                </div>
+                About Me
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingSection(editingSection === "about" ? null : "about")}
+                className="hover:bg-[#e0a800]/10 transition-colors duration-200"
+              >
+                <Edit3 className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {editingSection === "about" ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstname" className="text-sm font-semibold text-[#001f3f]">
+                      First Name
+                    </Label>
+                    <Input
+                      id="firstname"
+                      value={formData.firstname || ""}
+                      onChange={(e) => handleInputChange("firstname", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastname" className="text-sm font-semibold text-[#001f3f]">
+                      Last Name
+                    </Label>
+                    <Input
+                      id="lastname"
+                      value={formData.lastname || ""}
+                      onChange={(e) => handleInputChange("lastname", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="emailaddress" className="text-sm font-semibold text-[#001f3f]">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="emailaddress"
+                    type="email"
+                    value={formData.emailaddress || ""}
+                    onChange={(e) => handleInputChange("emailaddress", e.target.value)}
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-semibold text-[#001f3f]">
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone || ""}
+                      onChange={(e) => handleInputChange("phone", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cellphone" className="text-sm font-semibold text-[#001f3f]">
+                      Mobile Number
+                    </Label>
+                    <Input
+                      id="cellphone"
+                      value={formData.cellphone || ""}
+                      onChange={(e) => handleInputChange("cellphone", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthday" className="text-sm font-semibold text-[#001f3f]">
+                    Birthday
+                  </Label>
+                  <Input
+                    id="birthday"
+                    type="date"
+                    value={formData.birthday || ""}
+                    onChange={(e) => handleInputChange("birthday", e.target.value)}
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-[#001f3f]/5 to-white rounded-lg">
+                  <div className="p-2 bg-[#001f3f]/10 rounded-full">
+                    <Mail className="w-5 h-5 text-[#001f3f]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#001f3f]">{user.emailaddress}</p>
+                    <p className="text-sm text-gray-600">Primary Email</p>
+                  </div>
+                </div>
+                {(user.phone || user.cellphone) && (
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-[#e0a800]/5 to-white rounded-lg">
+                    <div className="p-2 bg-[#e0a800]/10 rounded-full">
+                      <Phone className="w-5 h-5 text-[#e0a800]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-[#001f3f]">{user.cellphone || user.phone}</p>
+                      <p className="text-sm text-gray-600">Contact Number</p>
+                    </div>
+                  </div>
+                )}
+                {user.birthday && (
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg">
+                    <div className="p-2 bg-gray-100 rounded-full">
+                      <Calendar className="w-5 h-5 text-[#001f3f]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-[#001f3f]">{new Date(user.birthday).toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-600">Birthday</p>
+                    </div>
                   </div>
                 )}
               </div>
-              <div className="w-full">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                  id="photo-upload"
-                  disabled={isUploadingPhoto}
-                />
-                <Button
-                  variant="outline"
-                  className="w-full bg-transparent"
-                  onClick={() => document.getElementById("photo-upload")?.click()}
-                  disabled={isUploadingPhoto}
-                >
-                  {isUploadingPhoto ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="mr-2 h-4 w-4" />
-                      Change Photo
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Personal Information Card */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="text-lg lg:text-xl">Personal Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 lg:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm lg:text-base">
-                    First Name *
-                  </Label>
-                  <Input
-                    id="firstName"
-                    value={formData.firstname}
-                    onChange={(e) => handleInputChange("firstname", e.target.value)}
-                    placeholder="Enter your first name"
-                    className="h-10 lg:h-12 text-sm lg:text-base"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-sm lg:text-base">
-                    Last Name *
-                  </Label>
-                  <Input
-                    id="lastName"
-                    value={formData.lastname}
-                    onChange={(e) => handleInputChange("lastname", e.target.value)}
-                    placeholder="Enter your last name"
-                    className="h-10 lg:h-12 text-sm lg:text-base"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm lg:text-base">
-                  Email Address *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.emailaddress}
-                  onChange={(e) => handleInputChange("emailaddress", e.target.value)}
-                  placeholder="Enter your email"
-                  className="h-10 lg:h-12 text-sm lg:text-base"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm lg:text-base">
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    placeholder="Enter your phone number"
-                    className="h-10 lg:h-12 text-sm lg:text-base"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cellphone" className="text-sm lg:text-base">
-                    Cellphone Number
-                  </Label>
-                  <Input
-                    id="cellphone"
-                    value={formData.cellphone}
-                    onChange={(e) => handleInputChange("cellphone", e.target.value)}
-                    placeholder="Enter your cellphone number"
-                    className="h-10 lg:h-12 text-sm lg:text-base"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="gender" className="text-sm lg:text-base">
-                    Gender
-                  </Label>
-                  <Select value={formData.gender} onValueChange={(value) => handleInputChange("gender", value)}>
-                    <SelectTrigger className="h-10 lg:h-12">
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="civilStatus" className="text-sm lg:text-base">
-                    Civil Status
-                  </Label>
-                  <Select
-                    value={formData.civilStatus}
-                    onValueChange={(value) => handleInputChange("civilStatus", value)}
-                  >
-                    <SelectTrigger className="h-10 lg:h-12">
-                      <SelectValue placeholder="Select civil status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Single">Single</SelectItem>
-                      <SelectItem value="Married">Married</SelectItem>
-                      <SelectItem value="Divorced">Divorced</SelectItem>
-                      <SelectItem value="Widowed">Widowed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Address Information Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg lg:text-xl">Address Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 lg:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="state" className="text-sm lg:text-base">
-                  State/Province
-                </Label>
-                <Input
-                  id="state"
-                  value={formData.state}
-                  onChange={(e) => handleInputChange("state", e.target.value)}
-                  placeholder="Enter your state/province"
-                  className="h-10 lg:h-12 text-sm lg:text-base"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city" className="text-sm lg:text-base">
-                  City
-                </Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => handleInputChange("city", e.target.value)}
-                  placeholder="Enter your city"
-                  className="h-10 lg:h-12 text-sm lg:text-base"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="barangay" className="text-sm lg:text-base">
-                  Barangay
-                </Label>
-                <Input
-                  id="barangay"
-                  value={formData.barangay}
-                  onChange={(e) => handleInputChange("barangay", e.target.value)}
-                  placeholder="Enter your barangay"
-                  className="h-10 lg:h-12 text-sm lg:text-base"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Additional Information Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg lg:text-xl">Additional Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 lg:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="site" className="text-sm lg:text-base">
-                  Website
-                </Label>
-                <Input
-                  id="site"
-                  value={formData.site}
-                  onChange={(e) => handleInputChange("site", e.target.value)}
-                  placeholder="Enter your website URL"
-                  className="h-10 lg:h-12 text-sm lg:text-base"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="fbLink" className="text-sm lg:text-base">
-                  Facebook Profile
-                </Label>
-                <Input
-                  id="fbLink"
-                  value={formData.fbLink}
-                  onChange={(e) => handleInputChange("fbLink", e.target.value)}
-                  placeholder="Enter your Facebook profile URL"
-                  className="h-10 lg:h-12 text-sm lg:text-base"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <Button
-            onClick={handleSaveProfile}
-            disabled={isSaving}
-            className="bg-[#001f3f] hover:bg-[#001f3f]/90 text-white h-10 lg:h-12 px-6 lg:px-8 text-sm lg:text-base"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 lg:h-5 lg:w-5 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4 lg:h-5 lg:w-5" />
-                Save Changes
-              </>
             )}
-          </Button>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Professional Section */}
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="bg-gradient-to-r from-[#e0a800]/5 to-white">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                <div className="p-2 bg-[#e0a800]/10 rounded-lg">
+                  <Briefcase className="w-6 h-6 text-[#e0a800]" />
+                </div>
+                Professional Excellence
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingSection(editingSection === "professional" ? null : "professional")}
+                className="hover:bg-[#e0a800]/10 transition-colors duration-200"
+              >
+                <Edit3 className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {editingSection === "professional" ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="lrid" className="text-sm font-semibold text-[#001f3f]">
+                      License ID
+                    </Label>
+                    <Input
+                      id="lrid"
+                      value={formData.lrid || ""}
+                      onChange={(e) => handleInputChange("lrid", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="brokerID" className="text-sm font-semibold text-[#001f3f]">
+                      Broker ID
+                    </Label>
+                    <Input
+                      id="brokerID"
+                      value={formData.brokerID || ""}
+                      onChange={(e) => handleInputChange("brokerID", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="teamname" className="text-sm font-semibold text-[#001f3f]">
+                      Team Name
+                    </Label>
+                    <Input
+                      id="teamname"
+                      value={formData.teamname || ""}
+                      onChange={(e) => handleInputChange("teamname", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tlName" className="text-sm font-semibold text-[#001f3f]">
+                      Team Leader
+                    </Label>
+                    <Input
+                      id="tlName"
+                      value={formData.tlName || ""}
+                      onChange={(e) => handleInputChange("tlName", e.target.value)}
+                      className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invitedBy" className="text-sm font-semibold text-[#001f3f]">
+                    Invited By
+                  </Label>
+                  <Input
+                    id="invitedBy"
+                    value={formData.invitedBy || ""}
+                    onChange={(e) => handleInputChange("invitedBy", e.target.value)}
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {user.lrid && (
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-[#e0a800]/5 to-white rounded-lg">
+                    <div className="p-2 bg-[#e0a800]/10 rounded-full">
+                      <Award className="w-5 h-5 text-[#e0a800]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-[#001f3f]">Real Estate License</p>
+                      <p className="text-sm text-gray-600">ID: {user.lrid}</p>
+                    </div>
+                  </div>
+                )}
+                {user.teamname && (
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-[#001f3f]/5 to-white rounded-lg">
+                    <div className="p-2 bg-[#001f3f]/10 rounded-full">
+                      <Users className="w-5 h-5 text-[#001f3f]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-[#001f3f]">{user.teamname}</p>
+                      {user.tlName && <p className="text-sm text-gray-600">Team Leader: {user.tlName}</p>}
+                    </div>
+                  </div>
+                )}
+                {user.brokerID && (
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg">
+                    <div className="p-2 bg-gray-100 rounded-full">
+                      <Building className="w-5 h-5 text-[#001f3f]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-[#001f3f]">Broker Information</p>
+                      <p className="text-sm text-gray-600">ID: {user.brokerID}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Location Section */}
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="bg-gradient-to-r from-[#001f3f]/5 to-white">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                <div className="p-2 bg-[#001f3f]/10 rounded-lg">
+                  <MapPin className="w-6 h-6 text-[#001f3f]" />
+                </div>
+                Location & Territory
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingSection(editingSection === "location" ? null : "location")}
+                className="hover:bg-[#001f3f]/10 transition-colors duration-200"
+              >
+                <Edit3 className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {editingSection === "location" ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="state" className="text-sm font-semibold text-[#001f3f]">
+                    State/Province
+                  </Label>
+                  <Input
+                    id="state"
+                    value={formData.state || ""}
+                    onChange={(e) => handleInputChange("state", e.target.value)}
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city" className="text-sm font-semibold text-[#001f3f]">
+                    City
+                  </Label>
+                  <Input
+                    id="city"
+                    value={formData.city || ""}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="barangay" className="text-sm font-semibold text-[#001f3f]">
+                    Barangay
+                  </Label>
+                  <Input
+                    id="barangay"
+                    value={formData.barangay || ""}
+                    onChange={(e) => handleInputChange("barangay", e.target.value)}
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 bg-gradient-to-r from-[#e0a800]/5 to-white rounded-xl">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-[#e0a800]/10 rounded-full">
+                    <Target className="w-6 h-6 text-[#e0a800]" />
+                  </div>
+                  <div>
+                    <p className="text-xl font-semibold text-[#001f3f]">{getLocationString()}</p>
+                    {user.barangay && <p className="text-gray-600">Barangay: {user.barangay}</p>}
+                    <p className="text-sm text-[#e0a800] font-medium mt-1">Your Service Area</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Contact & Links Section */}
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                <div className="p-2 bg-[#001f3f]/10 rounded-lg">
+                  <Globe className="w-6 h-6 text-[#001f3f]" />
+                </div>
+                Digital Presence
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingSection(editingSection === "contact" ? null : "contact")}
+                className="hover:bg-[#e0a800]/10 transition-colors duration-200"
+              >
+                <Edit3 className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {editingSection === "contact" ? (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="site" className="text-sm font-semibold text-[#001f3f]">
+                    Website URL
+                  </Label>
+                  <Input
+                    id="site"
+                    value={formData.site || ""}
+                    onChange={(e) => handleInputChange("site", e.target.value)}
+                    placeholder="https://yourwebsite.com"
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fbLink" className="text-sm font-semibold text-[#001f3f]">
+                    Facebook Profile
+                  </Label>
+                  <Input
+                    id="fbLink"
+                    value={formData.fbLink || ""}
+                    onChange={(e) => handleInputChange("fbLink", e.target.value)}
+                    placeholder="https://facebook.com/yourprofile"
+                    className="border-2 border-gray-200 focus:border-[#e0a800] transition-colors duration-200"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {user.site && (
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-[#001f3f]/5 to-white rounded-lg hover:shadow-md transition-shadow duration-200">
+                    <div className="p-2 bg-[#001f3f]/10 rounded-full">
+                      <Globe className="w-5 h-5 text-[#001f3f]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-[#001f3f]">Personal Website</p>
+                      <a
+                        href={user.site}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#e0a800] hover:text-[#c49600] hover:underline transition-colors duration-200"
+                      >
+                        {user.site}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {user.fbLink && (
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-[#e0a800]/5 to-white rounded-lg hover:shadow-md transition-shadow duration-200">
+                    <div className="p-2 bg-[#e0a800]/10 rounded-full">
+                      <Facebook className="w-5 h-5 text-[#e0a800]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-[#001f3f]">Facebook Profile</p>
+                      <a
+                        href={user.fbLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#e0a800] hover:text-[#c49600] hover:underline transition-colors duration-200"
+                      >
+                        View Facebook Profile
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {!user.site && !user.fbLink && (
+                  <div className="text-center py-8">
+                    <Globe className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 italic">No digital presence links added yet</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Add your website and social media to boost your profile!
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
+
+      <style jsx>{`
+        @keyframes tilt {
+          0%, 50%, 100% {
+            transform: rotate(0deg);
+          }
+          25% {
+            transform: rotate(1deg);
+          }
+          75% {
+            transform: rotate(-1deg);
+          }
+        }
+        @keyframes twinkle {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.3;
+          }
+        }
+        .animate-tilt {
+          animation: tilt 10s infinite linear;
+        }
+        .animate-twinkle {
+          animation: twinkle 2s infinite;
+        }
+      `}</style>
     </DashboardLayout>
   )
 }
