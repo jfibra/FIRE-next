@@ -72,11 +72,11 @@ export default function DashboardPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Completed":
-        return <CheckCircle className="w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6" />
+        return <CheckCircle className="w-3 sm:w-4 lg:w-6 h-3 sm:h-4 lg:h-6" />
       case "In Progress":
-        return <Play className="w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6" />
+        return <Play className="w-3 sm:w-4 lg:w-6 h-3 sm:h-4 lg:h-6" />
       default:
-        return <Clock className="w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6" />
+        return <Clock className="w-3 sm:w-4 lg:w-6 h-3 sm:h-4 lg:h-6" />
     }
   }
 
@@ -105,15 +105,15 @@ export default function DashboardPage() {
               className="hover:shadow-lg lg:hover:shadow-xl transition-shadow duration-300 border border-gray-200 lg:border-2"
             >
               <CardHeader className="pb-4 lg:pb-6">
-                <div className="flex justify-between items-start gap-2">
-                  <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold text-[#001f3f] leading-tight">
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-start">
+                  <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold text-[#001f3f] leading-tight pr-2 sm:pr-0">
                     {m.title}
                   </CardTitle>
                   <Badge
-                    className={`flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-1 lg:py-2 text-xs lg:text-base font-medium ${getStatusColor(m.status)}`}
+                    className={`flex items-center gap-1 lg:gap-2 px-2 sm:px-3 lg:px-4 py-1 lg:py-2 text-xs sm:text-sm lg:text-base font-medium self-start sm:self-auto flex-shrink-0 ${getStatusColor(m.status)}`}
                   >
                     {getStatusIcon(m.status)}
-                    <span className="hidden sm:inline">{m.status}</span>
+                    <span className="whitespace-nowrap">{m.status}</span>
                   </Badge>
                 </div>
                 <p className="text-sm sm:text-base lg:text-lg text-gray-600 mt-2 lg:mt-3">{m.description}</p>
