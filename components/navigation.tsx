@@ -19,9 +19,9 @@ export function Navigation() {
               <Image
                 src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
                 alt="Real Estate Training PH"
-                width={300}
+                width={350}
                 height={90}
-                className="h-auto w-[150px] sm:w-[200px] md:w-[300px] lg:w-[400px]"
+                className="h-auto w-[350px] sm:w-[350px] md:w-[350px] lg:w-[400px]"
               />
             </Link>
           </div>

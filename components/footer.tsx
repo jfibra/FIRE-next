@@ -12,9 +12,9 @@ export function Footer() {
             <Image
               src="/images/FIRE-LOGO-NEW-TRANSPARENT-WHITE.png"
               alt="FIRE Logo"
-              width={150}
+              width={350}
               height={45}
-              className="h-auto w-[120px] sm:w-[150px]"
+              className="h-auto w-[350px] sm:w-[350px]"
             />
             <p className="text-gray-400 leading-relaxed text-sm">
               Comprehensive online real estate training for Filipino professionals. Building careers, one agent at a

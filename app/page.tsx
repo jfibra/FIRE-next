@@ -281,7 +281,7 @@ export default function HomePage() {
 
             <div className="relative">
               <video controls className="w-full h-auto rounded-lg shadow-xl" poster="/images/video-thumbnail.png">
-                <source src="https://realestatetraining.ph/video/homepage.mp4" type="video/mp4" />
+                <source src="https://filipinohomes123.s3.ap-southeast-1.amazonaws.com/FIRE/welcome-to-fire.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -385,7 +385,7 @@ export default function HomePage() {
       </section>
 
       {/* Anthony Leuterio Section */}
-      <section className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+      <section className="pt-12 sm:pt-20 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-10 sm:gap-16 items-center">
             <div className="relative">
@@ -394,12 +394,12 @@ export default function HomePage() {
                 alt="Anthony Gerard Leuterio"
                 width={400}
                 height={480}
-                className="relative rounded-xl sm:rounded-2xl w-full h-auto shadow-xl"
+                className="relative rounded-xl sm:rounded-2xl w-full h-auto"
               />
             </div>
             <div className="space-y-6 sm:space-y-8">
               <div className="space-y-3 sm:space-y-4">
-                <Badge className="bg-primary-yellow/20 text-primary-yellow border-primary-yellow/30 px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">
+                <Badge className="bg-primary-navy/20 text-primary-navy border-primary-navy/30 px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">
                   🏆 2024 International Realtor of the Year
                 </Badge>
                 <h2 className="text-3xl sm:text-4xl font-bold text-primary-dark-blue">
