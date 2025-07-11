@@ -397,7 +397,7 @@ export default function HomePage() {
                 className="relative rounded-xl sm:rounded-2xl w-full h-auto"
               />
             </div>
-            <div className="space-y-6 sm:space-y-8">
+            <div className="py-10 space-y-6 sm:space-y-8">
               <div className="space-y-3 sm:space-y-4">
                 <Badge className="bg-primary-navy/20 text-primary-navy border-primary-navy/30 px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">
                   🏆 2024 International Realtor of the Year
