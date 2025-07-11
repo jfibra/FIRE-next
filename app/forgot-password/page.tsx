@@ -101,15 +101,15 @@ export default function ForgotPasswordPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-[#001f3f] to-[#001f3f]/80 flex items-center justify-center py-16 px-4">
-        <div className="w-full max-w-lg">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 py-16">
+        <div className="w-full max-w-2xl">
           <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
             <CardHeader className="space-y-8 text-center pb-12">
               <div className="flex justify-center">
                 <Image
                   src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
                   alt="FIRE Logo"
-                  width={150}
+                  width={400}
                   height={150}
                   className="object-contain"
                 />
