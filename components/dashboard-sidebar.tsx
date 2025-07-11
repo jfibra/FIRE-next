@@ -73,8 +73,7 @@ export function DashboardSidebar({ user, activeMenu, onLogout }: DashboardSideba
         <aside className="fixed left-0 top-0 h-full w-80 bg-[#001f3f] text-white flex flex-col shadow-2xl z-50 lg:hidden">
           <div className="flex items-center justify-between p-4 border-b border-[#001f3f]/40">
             <div className="flex items-center space-x-3">
-              <Image src="/images/FIRE-LOGO-NEW-TRANSPARENT.png" alt="FIRE" height={32} width={32} />
-              <span className="font-bold text-xl">FIRE</span>
+              <Image src="/images/FIRE-LOGO-NEW-TRANSPARENT-WHITE.png" alt="FIRE" height={150} width={300} />
             </div>
             <Button
               variant="ghost"
@@ -144,13 +143,12 @@ export function DashboardSidebar({ user, activeMenu, onLogout }: DashboardSideba
         <div className="flex items-center justify-between p-4 xl:p-6 border-b border-[#001f3f]/40">
           <div className="flex items-center space-x-3 overflow-hidden">
             <Image
-              src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
+              src="/images/FIRE-LOGO-NEW-TRANSPARENT-WHITE.png"
               alt="FIRE"
-              height={collapsed ? 32 : 40}
-              width={collapsed ? 32 : 40}
+              height={collapsed ? 0 : 150}
+              width={collapsed ? 0 : 350}
               className="flex-shrink-0"
             />
-            {!collapsed && <span className="font-bold text-xl xl:text-2xl">FIRE</span>}
           </div>
           <Button
             variant="ghost"
