@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/hooks/use-toast"
+import { Layout } from "@/components/layout"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -218,213 +219,215 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card className="shadow-2xl border-0">
-          <CardHeader className="space-y-4 pb-6">
-            <div className="flex justify-center">
-              <Image
-                src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
-                alt="FIRE Logo"
-                width={120}
-                height={40}
-                className="drop-shadow-sm"
-              />
-            </div>
-            <div className="text-center">
-              <CardTitle className="text-2xl font-bold text-[#001f3f]">Welcome Back</CardTitle>
-              <CardDescription className="text-gray-600 mt-2">
-                Sign in to access your FIRE training portal
-              </CardDescription>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            {message && (
-              <Alert
-                variant={getAlertVariant()}
-                className={
-                  messageType === "success"
-                    ? "border-green-200 bg-green-50"
-                    : messageType === "info"
-                      ? "border-blue-200 bg-blue-50"
-                      : ""
-                }
-              >
-                {getAlertIcon()}
-                <AlertDescription
-                  className={
-                    messageType === "success" ? "text-green-800" : messageType === "info" ? "text-blue-800" : ""
-                  }
-                >
-                  {message}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="emailaddress" className="text-sm font-medium text-gray-700">
-                  Email Address
-                </Label>
-                <Input
-                  id="emailaddress"
-                  name="emailaddress"
-                  type="email"
-                  value={formData.emailaddress}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email address"
-                  className="h-11 border-gray-300 focus:border-[#001f3f] focus:ring-[#001f3f]"
-                  required
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 py-16">
+        <div className="w-full max-w-md">
+          <Card className="shadow-2xl border-0">
+            <CardHeader className="space-y-4 pb-6">
+              <div className="flex justify-center">
+                <Image
+                  src="/images/FIRE-LOGO-NEW-TRANSPARENT.png"
+                  alt="FIRE Logo"
+                  width={120}
+                  height={40}
+                  className="drop-shadow-sm"
                 />
               </div>
+              <div className="text-center">
+                <CardTitle className="text-2xl font-bold text-[#001f3f]">Welcome Back</CardTitle>
+                <CardDescription className="text-gray-600 mt-2">
+                  Sign in to access your FIRE training portal
+                </CardDescription>
+              </div>
+            </CardHeader>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  Password
-                </Label>
-                <div className="relative">
+            <CardContent className="space-y-6">
+              {message && (
+                <Alert
+                  variant={getAlertVariant()}
+                  className={
+                    messageType === "success"
+                      ? "border-green-200 bg-green-50"
+                      : messageType === "info"
+                        ? "border-blue-200 bg-blue-50"
+                        : ""
+                  }
+                >
+                  {getAlertIcon()}
+                  <AlertDescription
+                    className={
+                      messageType === "success" ? "text-green-800" : messageType === "info" ? "text-blue-800" : ""
+                    }
+                  >
+                    {message}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="emailaddress" className="text-sm font-medium text-gray-700">
+                    Email Address
+                  </Label>
                   <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
+                    id="emailaddress"
+                    name="emailaddress"
+                    type="email"
+                    value={formData.emailaddress}
                     onChange={handleInputChange}
-                    placeholder="Enter your password"
-                    className="h-11 pr-10 border-gray-300 focus:border-[#001f3f] focus:ring-[#001f3f]"
+                    placeholder="Enter your email address"
+                    className="h-11 border-gray-300 focus:border-[#001f3f] focus:ring-[#001f3f]"
                     required
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-11 w-11 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Enter your password"
+                      className="h-11 pr-10 border-gray-300 focus:border-[#001f3f] focus:ring-[#001f3f]"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-11 w-11 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 bg-[#001f3f] hover:bg-[#001f3f]/90 text-white font-medium"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </form>
+
+              <div className="text-center space-y-4">
+                <Link href="/forgot-password" className="text-sm text-[#001f3f] hover:underline font-medium">
+                  Forgot your password?
+                </Link>
+
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-sm text-gray-600">Need help?</span>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-[#001f3f] hover:bg-[#001f3f]/10 p-1 h-auto">
+                        <HelpCircle className="h-4 w-4 mr-1" />
+                        Contact Support
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Contact Support</DialogTitle>
+                        <DialogDescription>
+                          Having trouble logging in? Send us a message and we'll help you out.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleSupportTicketSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="fullName">Full Name</Label>
+                          <Input
+                            id="fullName"
+                            name="fullName"
+                            value={supportTicket.fullName}
+                            onChange={handleSupportTicketChange}
+                            placeholder="Enter your full name"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email Address</Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={supportTicket.email}
+                            onChange={handleSupportTicketChange}
+                            placeholder="Enter your email address"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="subject">Subject</Label>
+                          <Input
+                            id="subject"
+                            name="subject"
+                            value={supportTicket.subject}
+                            onChange={handleSupportTicketChange}
+                            placeholder="Brief description of your issue"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="message">Message</Label>
+                          <Textarea
+                            id="message"
+                            name="message"
+                            value={supportTicket.message}
+                            onChange={handleSupportTicketChange}
+                            placeholder="Describe your issue in detail..."
+                            className="min-h-[100px]"
+                            required
+                          />
+                        </div>
+                        <Button
+                          type="submit"
+                          className="w-full bg-[#001f3f] hover:bg-[#001f3f]/90"
+                          disabled={isSubmittingTicket}
+                        >
+                          {isSubmittingTicket ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Submitting...
+                            </>
+                          ) : (
+                            "Submit Ticket"
+                          )}
+                        </Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div className="pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    Don't have an account?{" "}
+                    <Link href="/register" className="text-[#001f3f] hover:underline font-medium">
+                      Sign up here
+                    </Link>
+                  </p>
                 </div>
               </div>
-
-              <Button
-                type="submit"
-                className="w-full h-11 bg-[#001f3f] hover:bg-[#001f3f]/90 text-white font-medium"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-            </form>
-
-            <div className="text-center space-y-4">
-              <Link href="/forgot-password" className="text-sm text-[#001f3f] hover:underline font-medium">
-                Forgot your password?
-              </Link>
-
-              <div className="flex items-center justify-center space-x-2">
-                <span className="text-sm text-gray-600">Need help?</span>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-[#001f3f] hover:bg-[#001f3f]/10 p-1 h-auto">
-                      <HelpCircle className="h-4 w-4 mr-1" />
-                      Contact Support
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Contact Support</DialogTitle>
-                      <DialogDescription>
-                        Having trouble logging in? Send us a message and we'll help you out.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleSupportTicketSubmit} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName">Full Name</Label>
-                        <Input
-                          id="fullName"
-                          name="fullName"
-                          value={supportTicket.fullName}
-                          onChange={handleSupportTicketChange}
-                          placeholder="Enter your full name"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email Address</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={supportTicket.email}
-                          onChange={handleSupportTicketChange}
-                          placeholder="Enter your email address"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="subject">Subject</Label>
-                        <Input
-                          id="subject"
-                          name="subject"
-                          value={supportTicket.subject}
-                          onChange={handleSupportTicketChange}
-                          placeholder="Brief description of your issue"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="message">Message</Label>
-                        <Textarea
-                          id="message"
-                          name="message"
-                          value={supportTicket.message}
-                          onChange={handleSupportTicketChange}
-                          placeholder="Describe your issue in detail..."
-                          className="min-h-[100px]"
-                          required
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        className="w-full bg-[#001f3f] hover:bg-[#001f3f]/90"
-                        disabled={isSubmittingTicket}
-                      >
-                        {isSubmittingTicket ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Submitting...
-                          </>
-                        ) : (
-                          "Submit Ticket"
-                        )}
-                      </Button>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              <div className="pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
-                  Don't have an account?{" "}
-                  <Link href="/register" className="text-[#001f3f] hover:underline font-medium">
-                    Sign up here
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </Layout>
   )
 }
