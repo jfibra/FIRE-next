@@ -178,11 +178,22 @@ export default function ModulePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Instructor Info */}
           <Card className="border-2 border-gray-200">
+            
             <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-[#001f3f] rounded-full flex items-center justify-center mx-auto mb-4">
-                <User className="w-8 h-8 text-white" />
+              <div className="w-40 h-40 bg-[#001f3f] rounded-full flex items-center justify-center mx-auto mb-4">
+                {module.spimg ? (
+                  <img
+                    src={`/profile/${module.spimg}`}
+                    alt={module.speaker}
+                    className="w-36 h-36 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="w-36 h-36 text-white" />
+                )}
               </div>
-              <CardTitle className="text-xl text-[#001f3f]">Instructor</CardTitle>
+              <CardTitle className="text-xl text-[#001f3f]">
+                Instructor
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-2">
               <p className="text-lg font-semibold">{module.speaker}</p>

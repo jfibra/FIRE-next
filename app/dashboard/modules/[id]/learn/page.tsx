@@ -3,7 +3,19 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, ArrowRight, Download, Play, FileText, Loader2, AlertCircle, ExternalLink } from "lucide-react"
+import {
+  ArrowLeft,
+  ArrowRight,
+  Download,
+  Play,
+  FileText,
+  Loader2,
+  AlertCircle,
+  ZoomIn,
+  ZoomOut,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 import { useRouter, useParams } from "next/navigation"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useState, useEffect } from "react"
@@ -32,6 +44,11 @@ export default function ModuleLearnPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"video" | "pdf">("video")
+  const [pdfZoom, setPdfZoom] = useState(1.0)
+  const [pdfPage, setPdfPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchModule = async () => {
@@ -101,6 +118,32 @@ export default function ModuleLearnPage() {
     return match ? match[1] : null
   }
 
+  const handleZoomIn = () => {
+    setPdfZoom((prev) => Math.min(prev + 0.25, 3.0))
+  }
+
+  const handleZoomOut = () => {
+    setPdfZoom((prev) => Math.max(prev - 0.25, 0.5))
+  }
+
+  const handlePreviousPage = () => {
+    setPdfPage((prev) => Math.max(prev - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setPdfPage((prev) => Math.min(prev + 1, totalPages))
+  }
+
+  const handlePdfLoad = () => {
+    setPdfLoading(false)
+    setPdfError(null)
+  }
+
+  const handlePdfError = () => {
+    setPdfLoading(false)
+    setPdfError("Failed to load PDF. The file might not exist or be corrupted.")
+  }
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -137,6 +180,7 @@ export default function ModuleLearnPage() {
   const directVideoUrl = module.video ? extractDirectVideoUrl(module.video) : null
   const hasVideo = !!(videoId || directVideoUrl)
   const hasPdf = !!module.presentation
+  const pdfUrl = module.presentation ? `/pdf/${module.presentation}` : null
 
   return (
     <DashboardLayout>
@@ -243,25 +287,128 @@ export default function ModuleLearnPage() {
               </div>
             )}
 
-            {activeTab === "pdf" && hasPdf && (
-              <div className="p-8 text-center space-y-6">
-                <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                  <FileText className="w-12 h-12 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-[#001f3f] mb-2">PDF Materials</h3>
-                  <p className="text-gray-600 mb-6">Download the course materials to continue your learning journey.</p>
+            {activeTab === "pdf" && hasPdf && pdfUrl && (
+              <div className="space-y-4">
+                {/* PDF Controls */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-gray-50 border-b">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={handleZoomOut}
+                      variant="outline"
+                      size="sm"
+                      disabled={pdfZoom <= 0.5}
+                      className="border-[#001f3f] text-[#001f3f] hover:bg-[#001f3f] hover:text-white bg-transparent"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm font-medium text-[#001f3f] min-w-[60px] text-center">
+                      {Math.round(pdfZoom * 100)}%
+                    </span>
+                    <Button
+                      onClick={handleZoomIn}
+                      variant="outline"
+                      size="sm"
+                      disabled={pdfZoom >= 3.0}
+                      className="border-[#001f3f] text-[#001f3f] hover:bg-[#001f3f] hover:text-white"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={handlePreviousPage}
+                      variant="outline"
+                      size="sm"
+                      disabled={pdfPage <= 1}
+                      className="border-[#001f3f] text-[#001f3f] hover:bg-[#001f3f] hover:text-white bg-transparent"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm font-medium text-[#001f3f] min-w-[80px] text-center">Page {pdfPage}</span>
+                    <Button
+                      onClick={handleNextPage}
+                      variant="outline"
+                      size="sm"
+                      disabled={pdfPage >= totalPages}
+                      className="border-[#001f3f] text-[#001f3f] hover:bg-[#001f3f] hover:text-white"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+
                   <Button
-                    onClick={() =>
-                      window.open(`https://realestatetraining.ph/uploads/${module.presentation}`, "_blank")
-                    }
-                    className="bg-[#001f3f] hover:bg-[#001f3f]/90 text-white px-6 py-3"
+                    onClick={() => window.open(pdfUrl, "_blank")}
+                    variant="outline"
+                    size="sm"
+                    className="border-[#001f3f] text-[#001f3f] hover:bg-[#001f3f] hover:text-white"
                   >
-                    <Download className="w-5 h-5 mr-2" />
-                    Download PDF ({module.presentation})
-                    <ExternalLink className="w-4 h-4 ml-2" />
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
                   </Button>
                 </div>
+
+                {/* PDF Viewer */}
+                <div className="relative bg-gray-100 min-h-[600px] flex items-center justify-center">
+                  {pdfLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                      <div className="text-center">
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#001f3f]" />
+                        <p className="text-sm text-gray-600">Loading PDF...</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {pdfError ? (
+                    <div className="text-center p-8">
+                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-8 h-8 text-red-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">PDF Loading Error</h3>
+                      <p className="text-gray-600 mb-4">{pdfError}</p>
+                      <Button
+                        onClick={() => window.open(pdfUrl, "_blank")}
+                        className="bg-[#001f3f] hover:bg-[#001f3f]/90"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download PDF Instead
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="w-full max-w-4xl mx-auto p-4">
+                      <div
+                        className="bg-white shadow-lg rounded-lg overflow-hidden"
+                        style={{ transform: `scale(${pdfZoom})`, transformOrigin: "top center" }}
+                      >
+                        <iframe
+                          src={`${pdfUrl}#page=${pdfPage}&zoom=${Math.round(pdfZoom * 100)}`}
+                          className="w-full h-[800px] border-0"
+                          title={`${module.cname} - PDF Materials`}
+                          onLoad={handlePdfLoad}
+                          onError={handlePdfError}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* PDF Info */}
+                <div className="p-4 bg-gray-50 text-center">
+                  <p className="text-sm text-gray-600">
+                    <FileText className="w-4 h-4 inline mr-1" />
+                    {module.presentation} • Module {module.id} Materials
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "pdf" && hasPdf && !pdfUrl && (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">PDF Not Available</h3>
+                <p className="text-gray-600">The PDF file could not be located on the server.</p>
               </div>
             )}
 
